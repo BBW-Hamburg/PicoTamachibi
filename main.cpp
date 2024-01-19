@@ -112,8 +112,6 @@ public:
                 uint32_t hold_duration = get_time_ms() - last_released;
                 if (hold_duration >= 15000) {
                     reset_usb_boot(0, 0);
-                    __unreachable();
-                    while (true) asm("deadcode: jmp deadcode");
                 } else if (hold_duration >= 4000) {
                     power_switch.do_hard_reset();
                 } else if (hold_duration >= 2000) {
@@ -135,13 +133,23 @@ public:
             power_led_output.set_activated((((get_time_ms()-last_released)/500) % 2) == 1);
         }
     }
-} offline_handler;
+};
 
 
 class SerialHandler {
-    uart_inst_t *uart = uart1;
+    static inline uart_inst_t *uart = uart1;
 
 public:
+    SerialHandler() {
+        // Set up UART
+        gpio_set_function(4, GPIO_FUNC_UART);
+        gpio_set_function(5, GPIO_FUNC_UART);
+        sleep_ms(100);
+        uart_init(uart, 9600);
+        sleep_ms(100);
+        uart_putc(uart, 'R');
+    }
+
     void run() {
         // Don't try to read if there's nothing
         if (!uart_is_readable(uart))
@@ -152,12 +160,15 @@ public:
         case 'S': power_switch.do_short_push(); break;
         case 'O': power_switch.do_hard_power_off(); break;
         case 'R': power_switch.do_hard_reset(); break;
+        case 'F': reset_usb_boot(0, 0);
         }
     }
-} serial_handler;
+};
 
 
 int main() {
+    OfflineHandler offline_handler;
+    SerialHandler serial_handler;
     for (;;) {
         sleep_ms(50);
         offline_handler.run();
