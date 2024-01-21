@@ -19,6 +19,7 @@ target_link_libraries(picoswitch PUBLIC
 target_compile_definitions(picoswitch PRIVATE
     __unused=
     LIB_PICO_MULTICORE=0
+    PICO_UART_ENABLE_CRLF_SUPPORT=0
     ${CONSOLE_DEFINES}
 )
 target_include_directories(picoswitch PUBLIC

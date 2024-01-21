@@ -145,7 +145,7 @@ public:
         gpio_set_function(4, GPIO_FUNC_UART);
         gpio_set_function(5, GPIO_FUNC_UART);
         sleep_ms(100);
-        uart_init(uart, 9600);
+        uart_init(uart, 1200);
         sleep_ms(100);
         uart_putc(uart, 'R');
     }
@@ -160,8 +160,13 @@ public:
         case 'S': power_switch.do_short_push(); break;
         case 'O': power_switch.do_hard_power_off(); break;
         case 'R': power_switch.do_hard_reset(); break;
+        case 'H': case '?': uart_puts(uart, "\r\n S -> Short push\r\nO -> Long push\r\nR -> Long push then short push\r\nH -> Help\r\nF -> Flash mode\r\n\r\n"); break;
         case 'F': reset_usb_boot(0, 0);
+        default: return;
         }
+
+        // OK
+        uart_putc(uart, 'K');
     }
 };
 
