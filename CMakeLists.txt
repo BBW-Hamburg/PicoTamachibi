@@ -20,7 +20,6 @@ target_compile_definitions(picoswitch PRIVATE
     __unused=
     LIB_PICO_MULTICORE=0
     PICO_UART_ENABLE_CRLF_SUPPORT=0
-    ${CONSOLE_DEFINES}
 )
 target_include_directories(picoswitch PUBLIC
     include/
