@@ -1,182 +1,37 @@
+#include "context.hpp"
+
+#include "display.hpp"
+#include "framebuffer.hpp"
+#include "icon.hpp"
+
+#include <vector>
 #include <pico/stdlib.h>
-#include <pico/bootrom.h>
 
 
-class Input {
-    const unsigned gpio;
 
-public:
-    Input(unsigned gpio, bool pull_up = true) : gpio(gpio) {
-        gpio_init(gpio);
-        gpio_set_dir(gpio, GPIO_IN);
-        if (pull_up)
-            gpio_pull_up(gpio);
+void Context::run() {
+    Framebuffer fb(display.size.width, display.size.height);
+    std::vector<char> fb_buf(fb.get_buffer_size());
+    if (!fb.load(fb_buf))
+        panic("Init buf fail");
+
+    unsigned y = 0;
+    while (true) {
+        // Create test frame
+        Icon icon("heart.pbm");
+        fb.blit(icon.get_image(), 10, y);
+        if (++y == display.size.height)
+            y = 0;
+        display.fullframe_framebuffer(fb);
+
+        // Delay
+        sleep_ms(50); //MAP: picotamachibi.py:213
     }
-
-    bool is_pushed() const {
-        return !gpio_get(gpio);
-    }
-    bool is_activated() const {
-        return gpio_get(gpio);
-    }
-} power_button(14), reset_button(15), power_led_input(19, false);
-
-
-class Output {
-    const unsigned gpio;
-
-public:
-    Output(unsigned gpio) : gpio(gpio) {
-        gpio_init(gpio);
-        gpio_set_dir(gpio, GPIO_OUT);
-        set_activated(false);
-    }
-
-    void set_activated(bool active) {
-        gpio_put(gpio, active);
-    }
-} power_led_output(20);
-
-
-class PowerSwitch {
-    const unsigned gpio;
-
-public:
-    PowerSwitch(unsigned gpio) : gpio(gpio) {
-        gpio_init(gpio);
-        gpio_set_dir(gpio, GPIO_OUT);
-        set_pushed(false);
-    }
-
-    void set_pushed(bool pushed) {
-        gpio_put(gpio, !pushed);
-    }
-
-    void do_hard_reset() {
-        power_led_output.set_activated(false);
-        set_pushed(true);
-        sleep_ms(4200);
-        set_pushed(false);
-        sleep_ms(1000);
-        set_pushed(true);
-        sleep_ms(200);
-        set_pushed(false);
-    }
-
-    void do_hard_power_off() {
-        power_led_output.set_activated(false);
-        set_pushed(true);
-        sleep_ms(4200);
-        set_pushed(false);
-    }
-
-    void do_short_push() {
-        const bool led_activated = power_led_input.is_activated();
-        power_led_output.set_activated(!led_activated);
-        set_pushed(true);
-        sleep_ms(200);
-        set_pushed(false);
-        power_led_output.set_activated(led_activated);
-        sleep_ms(150);
-    }
-} power_switch(16);
-
-
-class OfflineHandler {
-    unsigned last_released;
-    bool handled;
-
-    static inline uint32_t get_time_ms() {
-        return us_to_ms(time_us_64());
-    }
-
-public:
-    OfflineHandler() {
-        reset();
-    }
-
-    void reset() {
-        last_released = 0;
-        handled = true;
-    }
-
-    void run() {
-        // Handle reset button being pushed
-        if (reset_button.is_pushed()) {
-            power_switch.do_hard_reset();
-        }
-        // Handle power button release
-        if (!power_button.is_pushed()) {
-            if (!handled) {
-                // Check timer
-                uint32_t hold_duration = get_time_ms() - last_released;
-                if (hold_duration >= 15000) {
-                    reset_usb_boot(0, 0);
-                } else if (hold_duration >= 4000) {
-                    power_switch.do_hard_reset();
-                } else if (hold_duration >= 2000) {
-                    power_switch.do_hard_power_off();
-                } else {
-                    power_switch.do_short_push();
-                }
-                // Mark as handled
-                handled = true;
-            }
-            // Update timer
-            last_released = get_time_ms();
-            // Synchronize power LED
-            power_led_output.set_activated(power_led_input.is_activated());
-        } else {
-            // Mark next release as not yet handled
-            handled = false;
-            // Blink
-            power_led_output.set_activated((((get_time_ms()-last_released)/500) % 2) == 1);
-        }
-    }
-};
-
-
-class SerialHandler {
-    static inline uart_inst_t *uart = uart1;
-
-public:
-    SerialHandler() {
-        // Set up UART
-        gpio_set_function(4, GPIO_FUNC_UART);
-        gpio_set_function(5, GPIO_FUNC_UART);
-        sleep_ms(100);
-        uart_init(uart, 1200);
-        sleep_ms(100);
-        uart_putc(uart, 'R');
-    }
-
-    void run() {
-        // Don't try to read if there's nothing
-        if (!uart_is_readable(uart))
-            return;
-
-        // Read and execute command
-        switch (uart_getc(uart)) {
-        case 'S': power_switch.do_short_push(); break;
-        case 'O': power_switch.do_hard_power_off(); break;
-        case 'R': power_switch.do_hard_reset(); break;
-        case 'H': case '?': uart_puts(uart, "\r\n S -> Short push\r\nO -> Long push\r\nR -> Long push then short push\r\nH -> Help\r\nF -> Flash mode\r\n\r\n"); break;
-        case 'F': reset_usb_boot(0, 0);
-        default: return;
-        }
-
-        // OK
-        uart_putc(uart, 'K');
-    }
-};
+}
 
 
 int main() {
-    OfflineHandler offline_handler;
-    SerialHandler serial_handler;
-    for (;;) {
-        sleep_ms(50);
-        offline_handler.run();
-        serial_handler.run();
-    }
+    Context::create();
+    auto& ctx = Context::get();
+    ctx.run();
 }
