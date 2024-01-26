@@ -51,7 +51,6 @@ public:
     void vline(unsigned x, unsigned y_start, unsigned y_end);
     void hline(unsigned x_start, unsigned x_end, unsigned y);
     void rect(unsigned x_start, unsigned x_end, unsigned y_start, unsigned y_end);
-    void text(std::string_view value, unsigned x, unsigned y);
 
     void clear();
 

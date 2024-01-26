@@ -65,10 +65,6 @@ void Framebuffer::rect(unsigned x_start, unsigned x_end, unsigned y_start, unsig
     hline(x_start, x_end, y_end);
 }
 
-void Framebuffer::text(std::string_view value, unsigned x, unsigned y) {
-    //TODO
-}
-
 void Framebuffer::clear() {
     ASSERT_PANIC("Wr to ro FB", !readonly);
     std::memset(data.data(), 0, data.size_bytes());

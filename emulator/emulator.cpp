@@ -51,8 +51,8 @@ static void mfb_keyboard_callback(struct mfb_window *window, mfb_key key, mfb_ke
     // Update button
     btn->is_pushed = is_pressed;
 
-    // Callback if any
-    if (btn->callback)
+    // Callback as needed if any
+    if (is_pressed && btn->callback)
         btn->callback(id, 0);
 }
 
