@@ -1,5 +1,4 @@
 #include "context.hpp"
-
 #include "display.hpp"
 #include "framebuffer.hpp"
 #include "icon.hpp"
@@ -29,12 +28,12 @@ Context::Icons::Icons() :
     poopy.do_bounce();
     death.do_loop();
     death.set_speed(Animate::slow);
-    death.set_loaded(true);
+    death.set_active(true);
     babyzzz.set_speed(Animate::very_slow);
     call_animate.set_speed(Animate::very_slow);
     go_potty.do_loop(1);
-    go_potty.set_loaded(true);
-    poopy.set_loaded(false);
+    go_potty.set_active(true);
+    poopy.set_active(false);
 }
 
 
@@ -101,8 +100,8 @@ void Context::run() {
             if (tb.get_selected_item() == "toilet") {
                 events.toilet.set_message("Cleaning...");
                 events.toilet.popup(oled);
-                icons.poopy.set_loaded(false);
-                icons.baby.set_loaded(true);
+                icons.poopy.set_active(false);
+                icons.baby.set_active(true);
                 happiness += 1;
                 fbuf.clear();
                 icons.poopy.unload();
@@ -138,7 +137,7 @@ void Context::run() {
             }
             if (tb.get_selected_item() == "call") {
                 // call_animate.animate(oled)
-                icons.call_animate.set_loaded(false);
+                icons.call_animate.set_active(false);
             }
         }
 
@@ -164,72 +163,52 @@ void Context::run() {
             if (sleeping) {
                 icons.babyzzz.do_animate(fbuf);
             } else {
-                if (icons.baby.is_loaded())
+                if (icons.baby.is_active())
                     icons.baby.do_animate(fbuf);
-                if (icons.go_potty.is_loaded())
+                if (icons.go_potty.is_active())
                     icons.go_potty.do_animate(fbuf);
                 if (icons.go_potty.is_done()) {
-                    icons.go_potty.set_loaded(false);
-                    icons.poopy.set_loaded(true);
+                    icons.go_potty.set_active(false);
+                    icons.poopy.set_active(true);
                     icons.baby.load();
                     icons.baby.do_bounce();
-                    icons.baby.set_loaded(true);
+                    icons.baby.set_active(true);
                 }
             }
         }
-        if ((energy <= 1) && (happiness <= 1) && (health <=1))
-            icons.death.set_loaded(true);
+        if ((energy <= 1) && (happiness <= 1) && (health <= 1))
+            icons.death.set_active(true);
         else
-            icons.death.set_loaded(false);
+            icons.death.set_active(false);
 
-        if ((energy <= 1) || (happiness <= 1) || (health <= 1)) {
+        if ((energy <= 1) || (happiness <= 1) || (health <= 1))
             // set the toolbar call icon to flash
-            icons.call_animate.set_loaded(true);
-        } else {
-            icons.call_animate.set_loaded(false);
-        }
+            icons.call_animate.set_active(true);
+        else
+            icons.call_animate.set_active(false);
 
-        if (icons.poopy.is_loaded()) {
+        if (icons.poopy.is_active()) {
             icons.poopy.load();
             icons.poopy.do_animate(fbuf);
         }
-        if (icons.death.is_loaded())
+        if (icons.death.is_active())
             icons.death.do_animate(fbuf);
         tb.show(fbuf);
         if (index == 6)
             tb.select(index, fbuf);
         else
-            if (icons.call_animate.is_loaded())
+            if (icons.call_animate.is_active())
                 icons.call_animate.do_animate(fbuf);
 
         oled.fullframe_framebuffer(fbuf);
 
         sleep_ms(50); //MAP: picotamachibi.py:213
     }
-
-
-
-
-    Animate icon("eat", Animate::default_, 10, 10, 48, 48);
-    icon.set_loaded(true);
-
-    while (true) {
-        // Create test frame
-        icon.do_animate(fbuf);
-        oled.fullframe_framebuffer(fbuf);
-
-        // Button
-        if (button_a.is_held())
-            sleep_ms(500);
-
-        // Delay
-        sleep_ms(50); //MAP: picotamachibi.py:213
-    }
 }
 
 
 int main() {
-    sleep_ms(5000);
+    setvbuf(stdout, NULL, _IONBF, 0);
 
     Context::create();
     auto& ctx = Context::get();

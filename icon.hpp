@@ -92,7 +92,7 @@ private:
     bool bouncing = false;
     AnimationType animation_type;
     unsigned pause = 0;
-    bool loaded = false;
+    bool active = false;
     unsigned x,
              y;
     unsigned width,
@@ -104,10 +104,10 @@ public:
     Animate(const char *filename = NULL, AnimationType animation_type = default_, unsigned x = 0, unsigned y = 0, unsigned width = 16, unsigned height = 16, std::vector<Icon>&& frames = {})
         : frames(std::move(frames)), animation_type(animation_type), x(x), y(y), width(width), height(height), filename(filename) {}
 
-    bool is_loaded() const {
-        return loaded;
+    bool is_active() const {
+        return active;
     }
-    void set_loaded(bool v);
+    void set_active(bool v);
 
     AnimationSpeed get_speed() const {
         return speed;

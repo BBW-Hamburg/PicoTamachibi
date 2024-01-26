@@ -1,3 +1,6 @@
 [submodule "pico-sdk"]
 	path = pico-sdk
 	url = https://github.com/raspberrypi/pico-sdk.git
+[submodule "minifb"]
+	path = minifb
+	url = https://github.com/emoon/minifb.git

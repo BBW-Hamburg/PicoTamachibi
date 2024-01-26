@@ -11,6 +11,17 @@
 
 
 class Context {
+public:
+    // Pubic hardware
+    Display oled = Display(sda, scl, i2c0);
+
+    const Button button_a = 4, //MAP: picotamachibi.py:63
+        button_b = 3,
+        button_x = 2;
+
+    Filesystem filesystem;
+
+private:
     // Hardware
     static constexpr unsigned sda = 0, //MAP: picotamachibi.py:9
                               scl = 1;
@@ -35,23 +46,14 @@ class Context {
         Events(Icons&);
     } events;
 
+    Toolbar tb;
+
     Context();
 
     // Private functions
     void build_toolbar();
 
 public:
-    // Public hardware
-    Display oled = Display(sda, scl, i2c0);
-
-    const Button button_a = 4, //MAP: picotamachibi.py:63
-                 button_b = 3,
-                 button_x = 2;
-
-    Filesystem filesystem;
-
-    Toolbar tb;
-
     // Prohibit copy and move
     Context(Context&&) = delete;
     Context(const Context&) = delete;

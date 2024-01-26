@@ -30,6 +30,7 @@ public:
     };
 
     Data data;
+    bool inverted = false;
 
     Framebuffer(Data data, unsigned width, unsigned height)
         : data(data), width(width), height(height) {}
@@ -52,7 +53,6 @@ public:
     void rect(unsigned x_start, unsigned x_end, unsigned y_start, unsigned y_end);
     void text(std::string_view value, unsigned x, unsigned y);
 
-    void invert();
     void clear();
 
     void blit(const Framebuffer& fbuf, unsigned x, unsigned y);

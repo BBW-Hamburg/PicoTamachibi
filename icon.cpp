@@ -2,6 +2,7 @@
 #include "context.hpp"
 #include "filesystem.hpp"
 
+#include <cstdio>
 
 
 void Icon::set_image(const Framebuffer::ROData &buf) {
@@ -15,7 +16,7 @@ void Icon::set_inverted(bool v) {
         return;
 
     // Invert buffer
-    image.invert();
+    image.inverted = v;
 
     // Update boolean
     inverted = v;
@@ -36,10 +37,10 @@ Framebuffer::ROData Icon::load_icon(const char *filename) {
 }
 
 
-void Animate::set_loaded(bool v) {
-    if (loaded == v)
+void Animate::set_active(bool v) {
+    if (active == v)
         return;
-    loaded = v;
+    active = v;
     if (v)
         load();
     else
@@ -112,11 +113,15 @@ void Animate::load() {
     if (cached)
         return;
 
+    printf("Loading animation files: %s\n", filename);
     for (const auto& file : Context::get().filesystem) {
         std::string_view this_filename = file.name;
-        if (this_filename.starts_with(filename) && this_filename.ends_with(".pbm"))
+        if (this_filename.starts_with(filename) && this_filename.ends_with(".pbm")) {
+            printf(" - %s\n", file.name);
             frames.push_back(Icon(file.name, width, height, 0, 0, this_filename));
+        }
     }
+    printf("Done loading animation files.\n\n");
 
     cached = true;
 
@@ -129,7 +134,7 @@ void Animate::unload() {
 }
 
 void Animate::do_animate(Framebuffer &fbuf) {
-    ASSERT_PANIC("Ani not load", loaded && frames.size() != 0);
+    ASSERT_PANIC("Ani not load", cached && frames.size() != 0);
 
     const auto cf = current_frame; //MAP: icon.py:371
     const auto& frame = frames[cf];

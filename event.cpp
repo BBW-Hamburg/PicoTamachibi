@@ -1,4 +1,5 @@
 #include "event.hpp"
+#include "context.hpp"
 #include "framebuffer.hpp"
 #include "display.hpp"
 
@@ -11,8 +12,11 @@ void Event::popup(Display& oled) {
     constexpr auto size = Display::size;
     Framebuffer fbuf(size.width, size.height); //MAP: icon.py:598
     std::vector<char> fbuf_data(fbuf.get_buffer_size());
+    if (!fbuf.load(fbuf_data))
+        Context::get().panic("Popup bad buf");
 
-    fbuf.rect(0, size.width, 16, 64);
+
+    fbuf.rect(0, size.width-1, 16, size.height-1);
     fbuf.blit(sprite.get_image(), 5, 26);
     fbuf.text(message, 32, 34);
     oled.fullframe_framebuffer(fbuf);

@@ -49,15 +49,13 @@ void Framebuffer::flip(Position pos) {
 }
 
 void Framebuffer::vline(unsigned x, unsigned y_start, unsigned y_end) {
-    for (unsigned y = y_start; y != y_end; y++) {
+    for (unsigned y = y_start; y != y_end; y++)
         set({x, y, width});
-    }
 }
 
 void Framebuffer::hline(unsigned x_start, unsigned x_end, unsigned y) {
-    for (unsigned x = x_start; y != x_end; y++) {
+    for (unsigned x = x_start; x != x_end; x++)
         set({x, y, width});
-    }
 }
 
 void Framebuffer::rect(unsigned x_start, unsigned x_end, unsigned y_start, unsigned y_end) {
@@ -71,14 +69,6 @@ void Framebuffer::text(std::string_view value, unsigned x, unsigned y) {
     //TODO
 }
 
-void Framebuffer::invert() {
-    ASSERT_PANIC("Wr to ro FB", !readonly);
-
-    for (auto& byte : data) {
-        byte = ~byte;
-    }
-}
-
 void Framebuffer::clear() {
     ASSERT_PANIC("Wr to ro FB", !readonly);
     std::memset(data.data(), 0, data.size_bytes());
@@ -88,13 +78,16 @@ void Framebuffer::blit(const Framebuffer &fbuf, unsigned int x, unsigned int y) 
     if (readonly)
         return;
 
+    // Check if inversion is needed
+    const bool invert = fbuf.inverted != inverted;
+
     // Start in top left corner
     unsigned x_off = 0,
             y_off = 0;
 
     // Set each
     while (true) {
-        set({*this, x + x_off, y + y_off}, fbuf.get({fbuf, x_off, y_off}));
+        set({*this, x + x_off, y + y_off}, fbuf.get({fbuf, x_off, y_off}) != invert);
         //set({*this, x + x_off, y + y_off}, x_off&1 && y_off&1);
 
         // Next pixel
@@ -110,13 +103,16 @@ void Framebuffer::overlay(const Framebuffer &fbuf) {
     if (readonly)
         return;
 
+    // Check if inversion is needed
+    const bool invert = fbuf.inverted != inverted;
+
     // Start in top left corner
     unsigned x = 0,
             y = 0;
 
     // Set each
     while (true) {
-        if (fbuf.get({fbuf, x, y}))
+        if (fbuf.get({fbuf, x, y}) != invert)
             set({*this, x, y});
 
         // Next pixel

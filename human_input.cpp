@@ -44,7 +44,7 @@ Button::~Button() {
     }
 }
 
-void Button::irq_handler(unsigned int gpio, uint32_t event_mask) {
+void Button::irq_handler(unsigned gpio, uint32_t event_mask) {
     for (auto& button : buttons) {
         if (button && button->gpio == gpio) {
             if (get_time_ms() - button->last_push > 400) {

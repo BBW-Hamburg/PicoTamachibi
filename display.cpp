@@ -89,7 +89,7 @@ void Display::render_framebuffer(const Framebuffer& fbuf) {
 
     // Draw each pixel
     while (true) {
-        if (fbuf.get({fbuf, coord.x, coord.y}))
+        if (fbuf.get({fbuf, coord.x, coord.y}) != fbuf.inverted)
             ssd1306_draw_pixel(&disp, coord.x, coord.y);
 
         // Next pixel

@@ -24,5 +24,5 @@ void Context::panic(std::string_view message) {
 
     oled.fullframe_text(lines);
 
-    while (true) asm("hang: bal hang");
+    while (true) asm("nop");
 }
