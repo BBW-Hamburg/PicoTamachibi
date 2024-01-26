@@ -1,5 +1,8 @@
 #include "framebuffer.hpp"
 #include "context.hpp"
+#include "font.h"
+
+#include <cstring>
 
 
 
@@ -21,9 +24,15 @@ bool Framebuffer::load_ro(ROData d) {
     return true;
 }
 
+bool Framebuffer::get(Position pos) const {
+    ASSERT_PANIC("Bad FB coord", pos.byte < data.size());
+
+    return data[pos.byte] & (0b10000000 >> pos.bit);
+}
+
 void Framebuffer::set(Position pos, bool value) {
-    if (readonly)
-        Context::get().panic("Wr to rw FB");
+    ASSERT_PANIC("Wr to ro FB", !readonly);
+    ASSERT_PANIC("Bad FB coord", pos.byte < data.size());
 
     auto& byte = data[pos.byte];
     if (value)
@@ -33,19 +42,46 @@ void Framebuffer::set(Position pos, bool value) {
 }
 
 void Framebuffer::flip(Position pos) {
-    if (readonly)
-        Context::get().panic("Wr to rw FB");
+    ASSERT_PANIC("Wr to ro FB", !readonly);
+    ASSERT_PANIC("Bad FB coord", pos.byte < data.size());
 
     data[pos.byte] ^= (0b10000000 >> pos.bit);
 }
 
+void Framebuffer::vline(unsigned x, unsigned y_start, unsigned y_end) {
+    for (unsigned y = y_start; y != y_end; y++) {
+        set({x, y, width});
+    }
+}
+
+void Framebuffer::hline(unsigned x_start, unsigned x_end, unsigned y) {
+    for (unsigned x = x_start; y != x_end; y++) {
+        set({x, y, width});
+    }
+}
+
+void Framebuffer::rect(unsigned x_start, unsigned x_end, unsigned y_start, unsigned y_end) {
+    vline(x_start, y_start, y_end);
+    vline(x_end, y_start, y_end);
+    hline(x_start, x_end, y_start);
+    hline(x_start, x_end, y_end);
+}
+
+void Framebuffer::text(std::string_view value, unsigned x, unsigned y) {
+    //TODO
+}
+
 void Framebuffer::invert() {
-    if (readonly)
-        Context::get().panic("Wr to rw FB");
+    ASSERT_PANIC("Wr to ro FB", !readonly);
 
     for (auto& byte : data) {
         byte = ~byte;
     }
+}
+
+void Framebuffer::clear() {
+    ASSERT_PANIC("Wr to ro FB", !readonly);
+    std::memset(data.data(), 0, data.size_bytes());
 }
 
 void Framebuffer::blit(const Framebuffer &fbuf, unsigned int x, unsigned int y) {
@@ -65,6 +101,28 @@ void Framebuffer::blit(const Framebuffer &fbuf, unsigned int x, unsigned int y) 
         if (++x_off == fbuf.width) {
             x_off = 0;
             if (++y_off == fbuf.height)
+                break;
+        }
+    }
+}
+
+void Framebuffer::overlay(const Framebuffer &fbuf) {
+    if (readonly)
+        return;
+
+    // Start in top left corner
+    unsigned x = 0,
+            y = 0;
+
+    // Set each
+    while (true) {
+        if (fbuf.get({fbuf, x, y}))
+            set({*this, x, y});
+
+        // Next pixel
+        if (++x == fbuf.width) {
+            x = 0;
+            if (++y == fbuf.height)
                 break;
         }
     }

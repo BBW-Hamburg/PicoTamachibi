@@ -18,7 +18,7 @@ static std::array<struct Button*, 8> buttons;
 Button::Button(unsigned gpio) : gpio(gpio) {
     gpio_init(gpio);
     gpio_set_dir(gpio, GPIO_IN);
-    gpio_pull_up(gpio);
+    gpio_pull_down(gpio);
     gpio_set_irq_enabled_with_callback(gpio, GPIO_IRQ_EDGE_RISE, true, irq_handler);
 
     // Add button to list
@@ -68,7 +68,7 @@ bool Button::was_pushed() const {
     return std::exchange(pushed, false);
 }
 bool Button::is_held() const {
-    return !gpio_get(gpio);
+    return gpio_get(gpio);
 }
 
 void Button::clear() {

@@ -46,8 +46,8 @@ typedef struct {
   unsigned size;
   unsigned mtime;
   unsigned type;
-  char name[100];
-  char linkname[100];
+  const char *name;
+  const char *linkname;
 } mtar_header_t;
 
 
@@ -70,7 +70,7 @@ void mtar_seek(mtar_t *tar, unsigned pos);
 void mtar_rewind(mtar_t *tar);
 int mtar_next(mtar_t *tar);
 int mtar_find(mtar_t *tar, const char *name, mtar_header_t *h);
-int mtar_read_header(mtar_t *tar, mtar_header_t *h);
+int mtar_get_header(mtar_t *tar, mtar_header_t *h);
 int mtar_get_data(mtar_t *tar, const void **ptr);
 
 #ifdef __cplusplus

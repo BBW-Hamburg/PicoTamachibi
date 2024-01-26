@@ -14,6 +14,7 @@ add_executable(picotamachibi
     main.cpp
     context.hpp context.cpp
     icon.hpp icon.cpp
+    event.hpp event.cpp
 
     # Runtime data
     font.h font.c

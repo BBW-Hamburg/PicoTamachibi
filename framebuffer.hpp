@@ -1,5 +1,6 @@
 #ifndef FRAMEBUFFER_HPP
 #define FRAMEBUFFER_HPP
+#include <string_view>
 #include <array>
 #include <span>
 #include <cstdint>
@@ -42,15 +43,20 @@ public:
     [[nodiscard]] bool load(Data d);
     [[nodiscard]] bool load_ro(ROData d);
 
-    bool get(Position pos) const {
-        return data[pos.byte] & (0b10000000 >> pos.bit);
-    }
+    bool get(Position pos) const;
     void set(Position pos, bool value = true);
     void flip(Position pos);
 
+    void vline(unsigned x, unsigned y_start, unsigned y_end);
+    void hline(unsigned x_start, unsigned x_end, unsigned y);
+    void rect(unsigned x_start, unsigned x_end, unsigned y_start, unsigned y_end);
+    void text(std::string_view value, unsigned x, unsigned y);
+
     void invert();
+    void clear();
 
     void blit(const Framebuffer& fbuf, unsigned x, unsigned y);
+    void overlay(const Framebuffer& fbuf);
 
     unsigned get_width() const {
         return width;

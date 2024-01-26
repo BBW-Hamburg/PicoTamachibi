@@ -22,7 +22,7 @@ void Context::panic(std::string_view message) {
         "!FAIL FAST!"
     };
 
-    display.fullframe_text(lines);
+    oled.fullframe_text(lines);
 
     while (true) asm("hang: bal hang");
 }

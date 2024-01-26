@@ -61,13 +61,6 @@ static unsigned checksum(const mtar_raw_header_t* rh) {
 }
 
 
-static void tread(mtar_t *tar, void *data, unsigned size) {
-  memcpy(data, tar->data+tar->seek_pos, size);
-  tar->seek_pos += size;
-  tar->pos += size;
-}
-
-
 static int raw_to_header(mtar_header_t *h, const mtar_raw_header_t *rh) {
   unsigned chksum1, chksum2;
 
@@ -89,8 +82,8 @@ static int raw_to_header(mtar_header_t *h, const mtar_raw_header_t *rh) {
   sscanf(rh->size, "%o", &h->size);
   sscanf(rh->mtime, "%o", &h->mtime);
   h->type = rh->type;
-  strcpy(h->name, rh->name);
-  strcpy(h->linkname, rh->linkname);
+  h->name = rh->name;
+  h->linkname = rh->linkname;
 
   return MTAR_ESUCCESS;
 }
@@ -149,7 +142,7 @@ int mtar_open(mtar_t *tar, const void *buffer, const char *mode) {
 
   /* Read first header to check it is valid if mode is `r` */
   if (*mode == 'r') {
-    err = mtar_read_header(tar, &h);
+    err = mtar_get_header(tar, &h);
     if (err != MTAR_ESUCCESS) {
       return err;
     }
@@ -177,7 +170,7 @@ int mtar_next(mtar_t *tar) {
   int err, n;
   mtar_header_t h;
   /* Load header */
-  err = mtar_read_header(tar, &h);
+  err = mtar_get_header(tar, &h);
   if (err) {
     return err;
   }
@@ -194,7 +187,7 @@ int mtar_find(mtar_t *tar, const char *name, mtar_header_t *h) {
   /* Start at beginning */
   mtar_rewind(tar);
   /* Iterate all files until we hit an error or find the file */
-  while ( (err = mtar_read_header(tar, &header)) == MTAR_ESUCCESS ) {
+  while ( (err = mtar_get_header(tar, &header)) == MTAR_ESUCCESS ) {
     if ( !strcmp(header.name, name) ) {
       if (h) {
         *h = header;
@@ -211,17 +204,12 @@ int mtar_find(mtar_t *tar, const char *name, mtar_header_t *h) {
 }
 
 
-int mtar_read_header(mtar_t *tar, mtar_header_t *h) {
+int mtar_get_header(mtar_t *tar, mtar_header_t *h) {
   int err;
-  mtar_raw_header_t rh;
-  /* Save header position */
-  tar->last_header = tar->pos;
   /* Read raw header */
-  tread(tar, &rh, sizeof(rh));
-  /* Seek back to start of header */
-  mtar_seek(tar, tar->last_header);
+  mtar_raw_header_t *rh = (mtar_raw_header_t *)(((const char *)tar->data)+tar->seek_pos);
   /* Load raw header into header struct and return */
-  return raw_to_header(h, &rh);
+  return raw_to_header(h, rh);
 }
 
 
@@ -232,7 +220,7 @@ int mtar_get_data(mtar_t *tar, const void **ptr) {
   if (tar->remaining_data == 0) {
     mtar_header_t h;
     /* Read header */
-    err = mtar_read_header(tar, &h);
+    err = mtar_get_header(tar, &h);
     if (err) {
       return err;
     }
