@@ -7,8 +7,8 @@ extern "C" {
 #include "framebuffer.hpp"
 
 #include <hardware/i2c.h>
-#include <string_view>
-#include <span>
+#include <etl/string_view.h>
+#include <etl/span.h>
 
 
 class Display {
@@ -28,14 +28,14 @@ public:
     void begin_frame();
 
     void render_pixel(Coord coord);
-    void render_text(Coord coord, std::string_view text);
+    void render_text(Coord coord,  etl::string_view text);
     void render_framebuffer(const Framebuffer&);
 
     void fullframe_blank();
     void fullframe_framebuffer(const Framebuffer&);
-    void fullframe_text(std::string_view text);
-    void fullframe_text(std::span<const std::string_view> text);
-    void fullframe_text_simple(std::string_view text);
+    void fullframe_text( etl::string_view text);
+    void fullframe_text( etl::span<const  etl::string_view> text);
+    void fullframe_text_simple( etl::string_view text);
 
     static inline constexpr unsigned get_pixel_width_of_text(unsigned char_count) {
         return char_count * (FONT_WIDTH+1) - 1;

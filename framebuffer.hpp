@@ -1,8 +1,6 @@
 #ifndef FRAMEBUFFER_HPP
 #define FRAMEBUFFER_HPP
-#include <string_view>
-#include <array>
-#include <span>
+#include <etl/span.h>
 #include <cstdint>
 
 
@@ -12,8 +10,8 @@ class Framebuffer {
     bool readonly = false;
 
 public:
-    using Data = std::span<char>;
-    using ROData = std::span<const char>;
+    using Data = etl::span<char>;
+    using ROData = etl::span<const char>;
 
     struct Position {
         unsigned byte;

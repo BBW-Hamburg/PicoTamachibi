@@ -2,8 +2,7 @@
 #define FILESYSTEM_HPP
 #include "microtar/src/microtar.h"
 
-#include <span>
-#include <compare>
+#include <etl/span.h>
 
 
 class Filesystem {
@@ -14,7 +13,7 @@ class Filesystem {
 public:
     Filesystem();
 
-    std::span<const char> read_file(const char *path);
+    etl::span<const char> read_file(const char *path);
 
     class FilesystemIterator begin();
     class FilesystemIterator end();

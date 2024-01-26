@@ -6,7 +6,7 @@
 #include "icon.hpp"
 #include "event.hpp"
 
-#include <string_view>
+#include <etl/string_view.h>
 #include <hardware/i2c.h>
 
 
@@ -62,7 +62,7 @@ public:
     void run();
 
     [[noreturn]]
-    void panic(std::string_view message);
+    void panic( etl::string_view message);
 
     static void create();
     static Context& get();

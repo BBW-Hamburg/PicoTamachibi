@@ -67,7 +67,7 @@ void Framebuffer::rect(unsigned x_start, unsigned x_end, unsigned y_start, unsig
 
 void Framebuffer::clear() {
     ASSERT_PANIC("Wr to ro FB", !readonly);
-    std::memset(data.data(), 0, data.size_bytes());
+    memset(data.data(), 0, data.size_bytes());
 }
 
 void Framebuffer::blit(const Framebuffer &fbuf, unsigned int x, unsigned int y) {

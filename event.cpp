@@ -31,10 +31,6 @@ void Event::tick() {
     if (++timer_elapsed < timer)
         return;
 
-    // Do callback if possible
-    if (callback)
-        callback();
-
     // Get rid of timer
     unset_timer();
 }

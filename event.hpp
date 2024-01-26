@@ -2,30 +2,26 @@
 #define EVENT_HPP
 #include "icon.hpp"
 
-#include <string>
-#include <string_view>
-#include <functional>
+#include <etl/string.h>
+#include <etl/string_view.h>
 
 
 class Event {
-    using Callback = std::function<void ()>;
-
-    std::string_view name;
+    etl::string_view name;
     unsigned value;
     Icon sprite;
     int timer = -1; // -1 means no timer set
     uint32_t timer_elapsed = 0;
-    Callback callback;
-    std::string message;
+    etl::string<16> message;
 
 public:
-    Event(const Icon& sprite, std::string_view name = "", unsigned value = 0, Callback callback = nullptr)
-        : name(name), value(value), sprite(sprite), callback(callback) {}
+    Event(const Icon& sprite, etl::string_view name = "", unsigned value = 0)
+        : name(name), value(value), sprite(sprite) {}
 
-    std::string_view get_name() const {
+    etl::string_view get_name() const {
         return name;
     }
-    void set_name(std::string_view v) {
+    void set_name(etl::string_view v) {
         name = v;
     }
 
@@ -43,14 +39,14 @@ public:
         return sprite;
     }
 
-    std::string_view get_message() const {
+    etl::string_view get_message() const {
         return message;
     }
-    void set_message(const std::string& v) {
+     void set_message(const etl::string<16>& v) {
         message = v;
     }
 
-    void popup(Display& oled);
+    void popup(class Display& oled);
 
     int get_timer() const {
         return timer;

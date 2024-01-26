@@ -4,3 +4,6 @@
 [submodule "minifb"]
 	path = minifb
 	url = https://github.com/emoon/minifb.git
+[submodule "etl"]
+	path = etl
+	url = https://github.com/ETLCPP/etl.git

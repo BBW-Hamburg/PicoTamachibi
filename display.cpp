@@ -6,14 +6,14 @@ extern "C" {
 #include "framebuffer.hpp"
 #include "context.hpp"
 
-#include <utility>
+#include <etl/utility.h>
 #include <pico/stdlib.h>
 #include <hardware/i2c.h>
 
 
 
 static
-std::pair<std::string_view, std::string_view> split_once(std::string_view s, std::string_view delim) {
+etl::pair<etl::string_view, etl::string_view> split_once(etl::string_view s, etl::string_view delim) {
     // Find the delimiter
     auto pos = s.find(delim);
     if (pos == s.npos) {
@@ -50,7 +50,7 @@ void Display::render_pixel(Coord coord) {
     ssd1306_draw_pixel(&disp, coord.x, coord.y);
 }
 
-void Display::render_text(Coord coord, std::string_view text) {
+void Display::render_text(Coord coord, etl::string_view text) {
     for (auto c : text) {
         // Handle spaces quickly
         if (c == ' ') {
@@ -115,7 +115,7 @@ void Display::fullframe_framebuffer(const Framebuffer& fbuf) {
     end_frame();
 }
 
-void Display::fullframe_text(std::string_view text) {
+void Display::fullframe_text(etl::string_view text) {
     // Begin new frame
     begin_frame();
 
@@ -131,7 +131,7 @@ void Display::fullframe_text(std::string_view text) {
     end_frame();
 }
 
-void Display::fullframe_text(std::span<const std::string_view> text) {
+void Display::fullframe_text(etl::span<const etl::string_view> text) {
     // Begin new frame
     begin_frame();
 
@@ -150,7 +150,7 @@ void Display::fullframe_text(std::span<const std::string_view> text) {
     end_frame();
 }
 
-void Display::fullframe_text_simple(std::string_view text) {
+void Display::fullframe_text_simple(etl::string_view text) {
     // Begin new frame
     begin_frame();
 
@@ -161,7 +161,7 @@ void Display::fullframe_text_simple(std::string_view text) {
     constexpr unsigned cpl = get_characters_per_line();
     for (unsigned start = 0, stop = false; !stop; start += cpl, pos.y += FONT_HEIGHT) {
         // Get text view to render
-        std::string_view text_view;
+        etl::string_view text_view;
         if (text.size() - start > cpl) {
             text_view = {text.data()+start, cpl};
         } else {

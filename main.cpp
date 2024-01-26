@@ -3,8 +3,9 @@
 #include "framebuffer.hpp"
 #include "icon.hpp"
 
-#include <string>
 #include <vector>
+#include <etl/string.h>
+#include <etl/to_string.h>
 #include <pico/stdlib.h>
 
 
@@ -127,11 +128,17 @@ void Context::run() {
                 fbuf.clear();
             }
             if (tb.get_selected_item() == "heart") {
-                events.heart_status.set_message("health = " + std::to_string(health));
+                etl::string<10> health_msg = "health = ";
+                etl::to_string(health, health_msg, true);
+                etl::string<10> happy_msg = "happy = ";
+                etl::to_string(happiness, happy_msg, true);
+                etl::string<10> energy_msg = "energy = ";
+                etl::to_string(energy, energy_msg, true);
+                events.heart_status.set_message(health_msg);
                 events.heart_status.popup(oled);
-                events.heart_status.set_message("happy = " + std::to_string(happiness));
+                events.heart_status.set_message(happy_msg);
                 events.heart_status.popup(oled);
-                events.heart_status.set_message("energy = " + std::to_string(energy));
+                events.heart_status.set_message(energy_msg);
                 events.heart_status.popup(oled);
                 fbuf.clear();
             }

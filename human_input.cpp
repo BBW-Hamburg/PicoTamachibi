@@ -1,8 +1,8 @@
 #include "human_input.hpp"
 #include "context.hpp"
 
-#include <array>
-#include <utility>
+#include <etl/array.h>
+#include <etl/utility.h>
 #include <pico/stdlib.h>
 
 
@@ -12,7 +12,7 @@ static inline uint32_t get_time_ms() {
 }
 
 
-static std::array<struct Button*, 8> buttons;
+static etl::array<struct Button*, 8> buttons;
 
 
 Button::Button(unsigned gpio) : gpio(gpio) {
@@ -65,7 +65,7 @@ void Button::clear_all() {
 }
 
 bool Button::was_pushed() const {
-    return std::exchange(pushed, false);
+    return etl::exchange(pushed, false);
 }
 bool Button::is_held() const {
     return gpio_get(gpio);

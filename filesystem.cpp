@@ -3,8 +3,8 @@
 #include "microtar/src/microtar.h"
 #include "incbin.h"
 
-#include <string>
-#include <vector>
+#include <etl/string.h>
+#include <etl/vector.h>
 
 INCBIN(fs_blob, SOURCE_DIR "/fs.tar");
 
@@ -13,21 +13,21 @@ INCBIN(fs_blob, SOURCE_DIR "/fs.tar");
 Filesystem::Filesystem() {
     const auto err = mtar_open(&tar, reinterpret_cast<const void *>(incbin_fs_blob_start), "rb");
     if (err != MTAR_ESUCCESS)
-        Context::get().panic("TAR init fail "+std::to_string(err));
+        Context::get().panic("TAR init fail ");
 }
 
-std::span<const char> Filesystem::read_file(const char *path) {
+etl::span<const char> Filesystem::read_file(const char *path) {
     // Find file
     mtar_header_t h;
     auto err = mtar_find(&tar, path, &h);
     if (err != MTAR_ESUCCESS)
-        Context::get().panic("TAR find fail "+std::to_string(err));
+        Context::get().panic("TAR find fail ");
 
     // Get data
     const void *ptr;
     err = mtar_get_data(&tar, &ptr);
     if (err != MTAR_ESUCCESS)
-        Context::get().panic("TAR read fail "+std::to_string(err));
+        Context::get().panic("TAR read fail ");
 
     // Create span
     return {reinterpret_cast<const char*>(ptr), h.size};

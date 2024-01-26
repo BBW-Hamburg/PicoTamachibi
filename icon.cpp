@@ -115,7 +115,7 @@ void Animate::load() {
 
     printf("Loading animation files: %s\n", filename);
     for (const auto& file : Context::get().filesystem) {
-        std::string_view this_filename = file.name;
+        etl::string_view this_filename = file.name;
         if (this_filename.starts_with(filename) && this_filename.ends_with(".pbm")) {
             printf(" - %s\n", file.name);
             frames.push_back(Icon(file.name, width, height, 0, 0, this_filename));
@@ -124,8 +124,6 @@ void Animate::load() {
     printf("Done loading animation files.\n\n");
 
     cached = true;
-
-    frames.shrink_to_fit();
 }
 
 void Animate::unload() {
@@ -205,14 +203,14 @@ void Animate::do_animate(Framebuffer &fbuf) {
 
 void OptionallyAnimatedIcon::set_inverted(bool v) {
     if (index() == 0) {
-        return std::get<0>(*this).set_inverted(v);
+        return etl::get<0>(*this).set_inverted(v);
     }
     Context::get().panic("SInv missing");
 }
 
-std::string_view OptionallyAnimatedIcon::get_name() const {
+etl::string_view OptionallyAnimatedIcon::get_name() const {
     if (index() == 0) {
-        return std::get<0>(*this).get_name();
+        return etl::get<0>(*this).get_name();
     }
     Context::get().panic("GName missing");
 }
@@ -227,13 +225,13 @@ void Toolbar::show(Framebuffer& fbuf) {
         ++count;
         switch (icon.index()) {
         case 0: {
-            const auto& icon_v = std::get<0>(icon).get_image();
+            const auto& icon_v = etl::get<0>(icon).get_image();
             fbuf.blit(icon_v, x, 0);
             x += icon_v.get_width() + spacer;
         } break;
         case 1: {
             // Were blitting manually even though Animate has code for this purpose.......
-            const auto& animate_v = std::get<1>(icon);
+            const auto& animate_v = etl::get<1>(icon);
             fbuf.blit(animate_v.frames[animate_v.current_frame].get_image(), x, 0);
         } break;
         }

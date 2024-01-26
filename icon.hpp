@@ -1,11 +1,10 @@
 #ifndef ICON_HPP
 #define ICON_HPP
-#include "display.hpp"
 #include "framebuffer.hpp"
 
-#include <string_view>
-#include <vector>
-#include <variant>
+#include <etl/string_view.h>
+#include <etl/vector.h>
+#include <etl/variant.h>
 
 
 class Icon {
@@ -15,10 +14,10 @@ class Icon {
     unsigned x,
              y;
     bool inverted = false;
-    std::string_view name;
+    etl::string_view name;
 
 public:
-    Icon(const char *filename, unsigned width = 16, unsigned height = 16, unsigned x = 0, unsigned y = 0, std::string_view name = "Empty")
+    Icon(const char *filename, unsigned width = 16, unsigned height = 16, unsigned x = 0, unsigned y = 0, etl::string_view name = "Empty")
           : image(width, height), x(x), y(y), name(name) {
         set_image(load_icon(filename));
     }
@@ -48,10 +47,10 @@ public:
         return image.get_height();
     }
 
-    std::string_view get_name() const {
+    etl::string_view get_name() const {
         return name;
     }
-    void get_name(std::string_view& v) {
+    void get_name(etl::string_view& v) {
         name = v;
     }
 
@@ -83,7 +82,7 @@ public:
     };
 
 private:
-    std::vector<Icon> frames;
+    etl::vector<Icon, 16> frames;
     unsigned current_frame = 0;
     AnimationSpeed speed = normal;
     unsigned speed_value = 0;
@@ -101,8 +100,8 @@ private:
     const char *filename;
 
 public:
-    Animate(const char *filename = NULL, AnimationType animation_type = default_, unsigned x = 0, unsigned y = 0, unsigned width = 16, unsigned height = 16, std::vector<Icon>&& frames = {})
-        : frames(std::move(frames)), animation_type(animation_type), x(x), y(y), width(width), height(height), filename(filename) {}
+    Animate(const char *filename = NULL, AnimationType animation_type = default_, unsigned x = 0, unsigned y = 0, unsigned width = 16, unsigned height = 16, etl::vector<Icon, 16>&& frames = {})
+        : frames(etl::move(frames)), animation_type(animation_type), x(x), y(y), width(width), height(height), filename(filename) {}
 
     bool is_active() const {
         return active;
@@ -204,19 +203,19 @@ public:
 };
 
 
-using OptionallyAnimatedIconBase = std::variant<Icon, Animate>;
+using OptionallyAnimatedIconBase = etl::variant<Icon, Animate>;
 
 class OptionallyAnimatedIcon : public OptionallyAnimatedIconBase {
 public:
     using OptionallyAnimatedIconBase::OptionallyAnimatedIconBase;
 
     void set_inverted(bool v);
-    std::string_view get_name() const;
+    etl::string_view get_name() const;
 };
 
 
 class Toolbar {
-    std::vector<OptionallyAnimatedIcon> icon_array;
+    etl::vector<OptionallyAnimatedIcon, 14> icon_array;
     unsigned spacer = 1;
     int selected_index = -1;
 
@@ -226,10 +225,10 @@ public:
     Toolbar(const Toolbar&) = delete;
 
     Toolbar(Toolbar&& o)
-        : icon_array(std::move(o.icon_array)), spacer(o.spacer), selected_index(o.selected_index) {}
+        : icon_array(etl::move(o.icon_array)), spacer(o.spacer), selected_index(o.selected_index) {}
 
     void add_item(OptionallyAnimatedIcon icon) {
-        icon_array.emplace_back(std::move(icon));
+        icon_array.emplace_back(etl::move(icon));
     }
 
     void show(Framebuffer& fbuf);
@@ -248,7 +247,7 @@ public:
         // Update self
         selected_index = index;
 
-        // Update display
+        // Update framebuffer
         show(fbuf);
     }
 
@@ -259,11 +258,11 @@ public:
         // Update self
         selected_index = -1;
 
-        // Update display
+        // Update framebuffer
         show(fbuf);
     }
 
-    std::string_view get_selected_item() const {
+    etl::string_view get_selected_item() const {
         return icon_array[selected_index].get_name();
     }
 };

@@ -1,7 +1,7 @@
 #include "context.hpp"
 
-#include <string_view>
-#include <array>
+#include <etl/string_view.h>
+#include <etl/array.h>
 #include <new>
 
 
@@ -15,8 +15,8 @@ Context &Context::get() {
     return *reinterpret_cast<Context*>(context_buf);
 }
 
-void Context::panic(std::string_view message) {
-    std::array<std::string_view, 3> lines = {
+void Context::panic(etl::string_view message) {
+    etl::array<etl::string_view, 3> lines = {
         "Panic:",
         message,
         "!FAIL FAST!"

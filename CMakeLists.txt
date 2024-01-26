@@ -11,6 +11,8 @@ project(picotamachibi LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+add_subdirectory(etl)
+
 if (BUILD_EMULATOR)
     set(DRIVER_SOURCES
         emulator/emulator.h
@@ -50,6 +52,7 @@ add_executable(picotamachibi
     ${DRIVER_SOURCES}
 )
 
+target_link_libraries(picotamachibi PUBLIC etl::etl)
 target_include_directories(picotamachibi PUBLIC
     include/
 )
