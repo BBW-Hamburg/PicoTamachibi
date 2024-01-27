@@ -140,7 +140,7 @@ public:
     /// Animates the frames based on the animation type and for the number of times specified
     void do_animate(Framebuffer& fbuf);
 
-    unsigned get_frame_count() const {
+    unsigned get_max_frame_index() const {
         return frames.size() - 1;
     }
 

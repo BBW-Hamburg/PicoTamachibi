@@ -80,7 +80,7 @@ void Animate::do_forward() {
     }
 
     if (speed == fast) {
-        if (current_frame < get_frame_count() + 2) {
+        if (current_frame < get_max_frame_index() + 2) {
             current_frame += 2;
         } else {
             current_frame += 1;
@@ -102,7 +102,7 @@ void Animate::do_reverse() {
     }
 
     if (speed == fast) {
-        if (current_frame < get_frame_count() + 2)
+        if (current_frame < get_max_frame_index() + 2)
             current_frame -= 2;
         else
             current_frame -= 1;
@@ -142,7 +142,7 @@ void Animate::do_animate(Framebuffer &fbuf) {
         // Loop from the first frame to the last, for the number of cycles specificed, and then set done to True
         do_forward();
 
-        if (current_frame > get_frame_count()) {
+        if (current_frame > get_max_frame_index()) {
             current_frame = 0;
             loop_count -= 1;
             if (loop_count == 0)
@@ -167,7 +167,7 @@ void Animate::do_animate(Framebuffer &fbuf) {
                     bouncing = false;
                 }
             }
-            if ((current_frame < get_frame_count()) && (current_frame > 0))
+            if ((current_frame < get_max_frame_index()) && (current_frame > 0))
                 do_reverse();
         } else {
             if (current_frame == 0) {
@@ -180,7 +180,7 @@ void Animate::do_animate(Framebuffer &fbuf) {
                     do_forward();
                     loop_count -= 1;
                 }
-            } else if (current_frame == get_frame_count()) {
+            } else if (current_frame == get_max_frame_index()) {
                 do_reverse();
                 bouncing = true;
             } else {
@@ -191,7 +191,7 @@ void Animate::do_animate(Framebuffer &fbuf) {
 
     if (animation_type == default_) {
         // loop through from first frame to last, then set done to True
-        if (current_frame == get_frame_count()) {
+        if (current_frame == get_max_frame_index()) {
             current_frame = 0;
             done = true;
         } else {
