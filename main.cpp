@@ -129,11 +129,11 @@ void Context::run() {
                 fbuf.clear();
             }
             if (tb.get_selected_item() == "heart") {
-                etl::string<10> health_msg = "health = ";
+                etl::string<12> health_msg = "health = ";
                 etl::to_string(health, health_msg, true);
-                etl::string<10> happy_msg = "happy = ";
+                etl::string<12> happy_msg = "happy = ";
                 etl::to_string(happiness, happy_msg, true);
-                etl::string<10> energy_msg = "energy = ";
+                etl::string<12> energy_msg = "energy = ";
                 etl::to_string(energy, energy_msg, true);
                 events.heart_status.set_message(health_msg);
                 events.heart_status.popup(oled);
