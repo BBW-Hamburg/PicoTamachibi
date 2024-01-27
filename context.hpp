@@ -7,6 +7,7 @@
 #include "event.hpp"
 
 #include <etl/string_view.h>
+#include <etl/span.h>
 #include <hardware/i2c.h>
 
 
@@ -62,9 +63,10 @@ public:
     void run();
 
     [[noreturn]]
-    void panic( etl::string_view message);
+    void panic(etl::string_view message);
 
-    static void create();
+    static void create(std::span<std::byte>);
+    static void destroy();
     static Context& get();
 };
 

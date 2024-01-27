@@ -3,7 +3,7 @@
 #include "framebuffer.hpp"
 #include "icon.hpp"
 
-#include <vector>
+#include <etl/array.h>
 #include <etl/string.h>
 #include <etl/to_string.h>
 #include <pico/stdlib.h>
@@ -63,9 +63,10 @@ void Context::build_toolbar() {
 
 void Context::run() {
     Framebuffer fbuf(oled.size.width, oled.size.height);
-    std::vector<char> fbuf_data(fbuf.get_buffer_size());
+    etl::array<char, Display::size.width*Display::size.height/8> fbuf_data;
     if (!fbuf.load(fbuf_data))
         panic("Bad main fbuf");
+    fbuf.clear();
 
     unsigned index = 0; //MAP: picotamachibi.py:67
     tb.select(index, fbuf);
@@ -217,7 +218,10 @@ void Context::run() {
 int main() {
     setvbuf(stdout, NULL, _IONBF, 0);
 
-    Context::create();
+    etl::array<std::byte, sizeof(Context)> context_buf;
+
+    Context::create(context_buf);
     auto& ctx = Context::get();
     ctx.run();
+    Context::destroy();
 }

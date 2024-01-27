@@ -4,15 +4,20 @@
 #include <etl/array.h>
 #include <new>
 
+static Context *instance = nullptr;
 
-static char context_buf[sizeof(Context)] = {};
 
-void Context::create() {
-    new (reinterpret_cast<Context*>(context_buf)) Context;
+void Context::create(std::span<std::byte> buffer) {
+    instance = reinterpret_cast<Context*>(buffer.data());
+    new (instance) Context;
+}
+
+void Context::destroy() {
+    delete (instance);
 }
 
 Context &Context::get() {
-    return *reinterpret_cast<Context*>(context_buf);
+    return *instance;
 }
 
 void Context::panic(etl::string_view message) {
