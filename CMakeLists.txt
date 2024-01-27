@@ -75,6 +75,7 @@ else()
         __unused=
         LIB_PICO_MULTICORE=0
         PICO_UART_ENABLE_CRLF_SUPPORT=0
+        PICO_STACK_SIZE=0x5000u
     )
 
     pico_add_extra_outputs(picotamachibi)
