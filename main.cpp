@@ -75,7 +75,7 @@ void Context::run() {
          sleeping = false;
 
     // Main loop
-    while (true) {
+    while (true) { //MAP: picotamachibi.py:94
         if (!cancel)
             tb.unselect(index, fbuf);
         if (button_a.was_pushed()) {
@@ -209,7 +209,6 @@ void Context::run() {
                 icons.call_animate.do_animate(fbuf);
 
         oled.fullframe_framebuffer(fbuf);
-
         sleep_ms(50); //MAP: picotamachibi.py:213
     }
 }
