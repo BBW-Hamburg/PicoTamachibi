@@ -59,7 +59,6 @@ public:
     Context(Context&&) = delete;
     Context(const Context&) = delete;
 
-    [[noreturn]]
     void run();
 
     [[noreturn]]
