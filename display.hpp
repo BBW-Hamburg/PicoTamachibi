@@ -20,6 +20,10 @@ public:
     };
     struct Size {
         unsigned width, height;
+
+        constexpr unsigned buffer_size() const {
+            return width*height/8;
+        }
     } static constexpr size {128, 64};
 
     Display(unsigned sda, unsigned scl, i2c_inst *i2c);

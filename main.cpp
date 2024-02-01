@@ -63,7 +63,7 @@ void Context::build_toolbar() {
 
 void Context::run() {
     Framebuffer fbuf(oled.size.width, oled.size.height);
-    etl::array<char, Display::size.width*Display::size.height/8> fbuf_data;
+    etl::array<char, Display::size.buffer_size()> fbuf_data;
     if (!fbuf.load(fbuf_data))
         panic("Bad main fbuf");
     fbuf.clear();

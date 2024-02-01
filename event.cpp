@@ -11,7 +11,7 @@
 void Event::popup(Display& oled) {
     constexpr auto size = Display::size;
     Framebuffer fbuf(size.width, size.height); //MAP: icon.py:598
-    etl::vector<char, size.width*size.height/8> fbuf_data(fbuf.get_buffer_size());
+    etl::array<char, size.buffer_size()> fbuf_data;
     if (!fbuf.load(fbuf_data))
         Context::get().panic("Popup bad buf");
 
