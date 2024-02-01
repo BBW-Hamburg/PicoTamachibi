@@ -217,7 +217,7 @@ void Context::run() {
 int main() {
     setvbuf(stdout, NULL, _IONBF, 0);
 
-    etl::array<std::byte, sizeof(Context)> context_buf;
+    etl::array<etl::byte, sizeof(Context)> context_buf;
 
     Context::create(context_buf);
     auto& ctx = Context::get();

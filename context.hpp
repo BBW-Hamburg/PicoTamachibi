@@ -17,8 +17,8 @@ public:
     Display oled = Display(sda, scl, i2c0);
 
     const Button button_a = 4, //MAP: picotamachibi.py:63
-        button_b = 3,
-        button_x = 2;
+                 button_b = 3,
+                 button_x = 2;
 
     Filesystem filesystem;
 
@@ -64,7 +64,7 @@ public:
     [[noreturn]]
     void panic(etl::string_view message);
 
-    static void create(std::span<std::byte>);
+    static void create(etl::span<etl::byte>);
     static void destroy();
     static Context& get();
 };

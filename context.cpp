@@ -7,7 +7,7 @@
 static Context *instance = nullptr;
 
 
-void Context::create(std::span<std::byte> buffer) {
+void Context::create(etl::span<etl::byte> buffer) {
     instance = reinterpret_cast<Context*>(buffer.data());
     new (instance) Context;
 }

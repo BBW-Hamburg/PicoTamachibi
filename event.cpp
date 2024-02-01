@@ -3,7 +3,7 @@
 #include "framebuffer.hpp"
 #include "display.hpp"
 
-#include <vector>
+#include <etl/vector.h>
 #include <pico/stdlib.h>
 
 
@@ -11,7 +11,7 @@
 void Event::popup(Display& oled) {
     constexpr auto size = Display::size;
     Framebuffer fbuf(size.width, size.height); //MAP: icon.py:598
-    std::vector<char> fbuf_data(fbuf.get_buffer_size());
+    etl::vector<char, size.width*size.height/8> fbuf_data(fbuf.get_buffer_size());
     if (!fbuf.load(fbuf_data))
         Context::get().panic("Popup bad buf");
 
