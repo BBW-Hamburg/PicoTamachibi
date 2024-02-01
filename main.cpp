@@ -101,7 +101,7 @@ void Context::run() {
 
             if (tb.get_selected_item() == "toilet") {
                 events.toilet.set_message("Cleaning...");
-                events.toilet.popup(oled);
+                events.toilet.popup(fbuf, oled);
                 icons.poopy.set_active(false);
                 icons.baby.set_active(true);
                 happiness += 1;
@@ -113,7 +113,7 @@ void Context::run() {
                     sleeping = true;
                     icons.babyzzz.load();
                     events.sleep_time.set_message("Night Night");
-                    events.sleep_time.popup(oled);
+                    events.sleep_time.popup(fbuf, oled);
                     fbuf.clear();
                     // need to add an event that increases energy level after sleeping for 1 minute
                 } else {
@@ -123,7 +123,7 @@ void Context::run() {
             }
             if (tb.get_selected_item() == "firstaid") {
                 events.firstaid.set_message("Vitamins");
-                events.firstaid.popup(oled);
+                events.firstaid.popup(fbuf, oled);
                 health += 1;
 
                 fbuf.clear();
@@ -136,11 +136,11 @@ void Context::run() {
                 etl::string<12> energy_msg = "energy = ";
                 etl::to_string(energy, energy_msg, true);
                 events.heart_status.set_message(health_msg);
-                events.heart_status.popup(oled);
+                events.heart_status.popup(fbuf, oled);
                 events.heart_status.set_message(happy_msg);
-                events.heart_status.popup(oled);
+                events.heart_status.popup(fbuf, oled);
                 events.heart_status.set_message(energy_msg);
-                events.heart_status.popup(oled);
+                events.heart_status.popup(fbuf, oled);
                 fbuf.clear();
             }
             if (tb.get_selected_item() == "call") {
@@ -160,7 +160,7 @@ void Context::run() {
             if (feeding_time && icons.eat.is_done()) {
                 feeding_time = false;
                 events.energy_increase.set_message("ENERGY + 1");
-                events.energy_increase.popup(oled);
+                events.energy_increase.popup(fbuf, oled);
                 energy += 1;
 
                 fbuf.clear();

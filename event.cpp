@@ -1,21 +1,15 @@
 #include "event.hpp"
-#include "context.hpp"
 #include "framebuffer.hpp"
 #include "display.hpp"
 
-#include <vector>
 #include <pico/stdlib.h>
 
 
 
-void Event::popup(Display& oled) {
+void Event::popup(Framebuffer& fbuf, Display& oled) {
     constexpr auto size = Display::size;
-    Framebuffer fbuf(size.width, size.height); //MAP: icon.py:598
-    std::vector<char> fbuf_data(size.buffer_size());
-    if (!fbuf.load(fbuf_data))
-        Context::get().panic("Popup bad buf");
 
-
+    fbuf.clear();
     fbuf.rect(0, size.width-1, 16, size.height-1);
     fbuf.blit(sprite.get_image(), 5, 26);
     oled.begin_frame();

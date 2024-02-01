@@ -1,6 +1,7 @@
 #ifndef EVENT_HPP
 #define EVENT_HPP
 #include "icon.hpp"
+#include "framebuffer.hpp"
 
 #include <etl/string.h>
 #include <etl/string_view.h>
@@ -46,7 +47,7 @@ public:
         message = v;
     }
 
-    void popup(class Display& oled);
+    void popup(Framebuffer& fbuf, class Display& oled);
 
     int get_timer() const {
         return timer;
