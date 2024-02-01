@@ -6,7 +6,7 @@
 #include "icon.hpp"
 #include "event.hpp"
 
-#include <etl/span.h>
+#include <etl/char_traits.h>
 #include <etl/string_view.h>
 #include <etl/span.h>
 #include <hardware/i2c.h>
