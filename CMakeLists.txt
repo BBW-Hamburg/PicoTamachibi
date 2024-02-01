@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-option(BUILD_EMULATOR "Build emulator instead" Yes)
+option(BUILD_EMULATOR "Build emulator instead" No)
 
 if (NOT BUILD_EMULATOR)
     include(pico-sdk/pico_sdk_init.cmake)
