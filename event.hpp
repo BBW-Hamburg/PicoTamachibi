@@ -68,7 +68,14 @@ public:
     }
 
     /// Progresses the animation on frame
-    void tick();
+    void tick() {
+        // Increment timer and return if not expired
+        if (++timer_elapsed < timer)
+            return;
+
+        // Get rid of timer
+        unset_timer();
+    }
 };
 
 #endif // EVENT_HPP

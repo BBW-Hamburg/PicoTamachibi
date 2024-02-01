@@ -19,12 +19,3 @@ void Event::popup(Framebuffer& fbuf, Display& oled) {
 
     sleep_ms(2000);
 }
-
-void Event::tick() {
-    // Increment timer and return if not expired
-    if (++timer_elapsed < timer)
-        return;
-
-    // Get rid of timer
-    unset_timer();
-}
