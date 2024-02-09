@@ -4,7 +4,7 @@
 #include "display.hpp"
 #include "filesystem.hpp"
 #include "icon.hpp"
-#include "event.hpp"
+#include "asyncman.hpp"
 
 #include <etl/string_view.h>
 #include <etl/span.h>
@@ -22,6 +22,10 @@ public:
 
     Filesystem filesystem;
 
+    // Public state
+    AsyncMan async_man;
+    Framebuffer fbuf;
+
 private:
     // Hardware
     static constexpr unsigned sda = 0, //MAP: picotamachibi.py:9
@@ -32,27 +36,16 @@ private:
              happiness = 1,
              energy = 1;
 
-    // Icons
-    struct Icons {
-        Icons();
+    // Animations
+    struct Animations {
+        Animations(AsyncMan& aman);
 
-        Icon food, lightbulb, game, firstaid, toilet, heart, call;
-        Animate poopy, baby, eat, babyzzz, death, go_potty, call_animate;
-    } icons;
-
-    // Events
-    struct Events {
-        Event energy_increase, firstaid, toilet, sleep_time, heart_status;
-
-        Events(Icons&);
-    } events;
+        Animation poopy, baby, eat, babyzzz, death, go_potty, call_animate;
+    } animations;
 
     Toolbar tb;
 
     Context();
-
-    // Private functions
-    void build_toolbar();
 
 public:
     // Prohibit copy and move

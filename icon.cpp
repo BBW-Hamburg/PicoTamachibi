@@ -5,12 +5,12 @@
 #include <cstdio>
 
 
-void Icon::set_image(const Framebuffer::ROData &buf) {
+void Image::set_framebuffer(const Framebuffer::ROData &buf) {
     if (!image.load_ro(buf))
         Context::get().panic("Fail Img load");
 }
 
-void Icon::set_inverted(bool v) {
+void Image::set_inverted(bool v) {
     // Do nothing if no change
     if (v == inverted)
         return;
@@ -22,7 +22,7 @@ void Icon::set_inverted(bool v) {
     inverted = v;
 }
 
-Framebuffer::ROData Icon::load_icon(const char *filename) {
+Framebuffer::ROData Image::load(const char *filename) {
     auto fres = Context::get().filesystem.read_file(filename); //MAP: icon.py:139
 
     // Skip first 3 lines
@@ -37,169 +37,52 @@ Framebuffer::ROData Icon::load_icon(const char *filename) {
 }
 
 
-void Animate::set_active(bool v) {
-    if (active == v)
-        return;
-    active = v;
-    if (v)
-        load();
-    else
-        unload();
-}
-
-void Animate::set_speed(AnimationSpeed v) {
-    speed = v;
-    switch (speed) {
-    case very_slow: {
-        pause = 10;
-        speed_value = 10;
-    } break;
-    case slow: {
-        pause = 1;
-        speed_value = 1;
-    } break;
-    case normal: {
-        pause = 0;
-        speed_value = 0;
-    } break;
-    case fast: {}
-    }
-}
-
-void Animate::do_forward() {
-    if (speed == normal) //MAP: icon.py:315
-        current_frame += 1;
-
-    if (speed <= slow) {
-        if (pause > 0) {
-            pause -= 1;
-        } else {
-            current_frame += 1;
-            pause = speed_value;
-        }
-    }
-
-    if (speed == fast) {
-        if (current_frame < get_max_frame_index() + 2) {
-            current_frame += 2;
-        } else {
-            current_frame += 1;
-        }
-    }
-}
-
-void Animate::do_reverse() {
-    if (speed == normal) //MAP: icon.py:332
-        current_frame -= 1;
-
-    if (speed <= slow) {
-        if (pause > 0) {
-            pause -= 1;
-        } else {
-            current_frame -= 1;
-            pause = speed_value;
-        }
-    }
-
-    if (speed == fast) {
-        if (current_frame < get_max_frame_index() + 2)
-            current_frame -= 2;
-        else
-            current_frame -= 1;
-    }
-}
-
-void Animate::load() {
-    if (cached)
-        return;
-
+void Animation::load(const char *filename, unsigned width, unsigned height) {
     printf("Loading animation files: %s\n", filename);
     for (const auto& file : Context::get().filesystem) {
         etl::string_view this_filename = file.name;
         if (this_filename.starts_with(filename) && this_filename.ends_with(".pbm")) {
             printf(" - %s\n", file.name);
-            frames.push_back(Icon(file.name, width, height, 0, 0, this_filename));
+            frames.push_back(Image(file.name, width, height, this_filename));
         }
     }
     printf("Done loading animation files.\n\n");
-
-    cached = true;
 }
 
-void Animate::unload() {
-    frames.clear();
-    cached = false;
+Animation::Animation(AsyncMan &aman, const char *filename, AnimationType animation_type, unsigned int x, unsigned int y, unsigned int width, unsigned int height, etl::vector<Image, 16> &&frames)
+    : frames(etl::move(frames)), animation_type(animation_type), async(aman), x(x), y(y) {
+    load(filename, width, height);
+
+    async->on_tick = AsyncMan::HandleCb::create([this, ctx = &Context::get()] {
+        if (!is_done()) {
+            ++frame;
+            ctx->fbuf.blit(get_current_image().get_framebuffer(), this->x, this->y);
+        }
+    });
 }
 
-void Animate::do_animate(Framebuffer &fbuf) {
-    ASSERT_PANIC("Ani not load", cached && frames.size() != 0);
-
-    const auto cf = current_frame; //MAP: icon.py:371
-    const auto& frame = frames[cf];
-    fbuf.blit(frame.image, x, y);
-
-    if (animation_type == loop) {
-        // Loop from the first frame to the last, for the number of cycles specificed, and then set done to True
-        do_forward();
-
-        if (current_frame > get_max_frame_index()) {
-            current_frame = 0;
-            loop_count -= 1;
-            if (loop_count == 0)
-                done = true;
-        }
+const Image& Animation::get_current_image() const {
+    switch (animation_type) {
+    case default_: return frames[frame];
+    case reverse: return frames[frames.size() - 1 - frame];
+    case loop: return frames[frame % frames.size()];
+    case bounce: {
+        const auto logical_frame = frame % (frames.size()*2);
+        if (logical_frame < frames.size())
+            return frames[logical_frame];
+        else
+            return frames[frames.size() - 1 - logical_frame/2];
     }
-
-    if (animation_type == bouncing) {
-        // Loop from the first frame to the last, and then back to the first again, then set done to True
-        if (bouncing) {
-            if (current_frame == 0) {
-                if (loop_count == 0) {
-                    done == true; // Wrong operator, but will leave as is to avoid breaking anything
-                } else if (loop_count > 0) {
-                    loop_count -= 1;
-                    do_forward();
-                    bouncing = false;
-                }
-                if (loop_count == -1) {
-                    // bounce infinately
-                    do_forward();
-                    bouncing = false;
-                }
-            }
-            if ((current_frame < get_max_frame_index()) && (current_frame > 0))
-                do_reverse();
-        } else {
-            if (current_frame == 0) {
-                if (loop_count == 0) {
-                    done == true; // Wrong operator, but will leave as is to avoid breaking anything
-                } else if (loop_count == -1) {
-                    // bounce infinatey
-                    do_forward();
-                } else {
-                    do_forward();
-                    loop_count -= 1;
-                }
-            } else if (current_frame == get_max_frame_index()) {
-                do_reverse();
-                bouncing = true;
-            } else {
-                do_forward();
-            }
-        }
-    }
-
-    if (animation_type == default_) {
-        // loop through from first frame to last, then set done to True
-        if (current_frame == get_max_frame_index()) {
-            current_frame = 0;
-            done = true;
-        } else {
-            do_forward();
-        }
     }
 }
 
+
+bool OptionallyAnimatedIcon::operator ==(etl::string_view v) const {
+    if (index() == 0) {
+        return etl::get<0>(*this) == v;
+    }
+    Context::get().panic("SInv missing");
+}
 
 void OptionallyAnimatedIcon::set_inverted(bool v) {
     if (index() == 0) {
@@ -208,31 +91,23 @@ void OptionallyAnimatedIcon::set_inverted(bool v) {
     Context::get().panic("SInv missing");
 }
 
-etl::string_view OptionallyAnimatedIcon::get_name() const {
-    if (index() == 0) {
-        return etl::get<0>(*this).get_name();
-    }
-    Context::get().panic("GName missing");
-}
-
 
 void Toolbar::show(Framebuffer& fbuf) {
     unsigned x = 0; //MAP: icon.py:169
     unsigned count = 0;
 
     // Blit icons into framebuffer
-    for (const auto& icon : icon_array) {
+    for (const auto& icon : images) {
         ++count;
         switch (icon.index()) {
         case 0: {
-            const auto& icon_v = etl::get<0>(icon).get_image();
+            const auto& icon_v = etl::get<0>(icon).get_framebuffer();
             fbuf.blit(icon_v, x, 0);
             x += icon_v.get_width() + spacer;
         } break;
         case 1: {
-            // Were blitting manually even though Animate has code for this purpose.......
             const auto& animate_v = etl::get<1>(icon);
-            fbuf.blit(animate_v.frames[animate_v.current_frame].get_image(), x, 0);
+            fbuf.blit(animate_v.get_current_image().get_framebuffer(), x, 0);
         } break;
         }
     }

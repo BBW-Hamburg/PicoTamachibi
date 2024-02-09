@@ -11,7 +11,7 @@ void Event::popup(Framebuffer& fbuf, Display& oled) {
 
     fbuf.clear();
     fbuf.rect(0, size.width-1, 16, size.height-1);
-    fbuf.blit(sprite.get_image(), 5, 26);
+    fbuf.blit(sprite.get_framebuffer(), 5, 26);
     oled.begin_frame();
     oled.render_framebuffer(fbuf);
     oled.render_text({28, 30}, message);

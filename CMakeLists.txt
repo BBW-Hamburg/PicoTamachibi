@@ -34,6 +34,7 @@ add_executable(picotamachibi
     # Application
     main.cpp
     context.hpp context.cpp
+    asyncman.hpp asyncman.cpp
     icon.hpp icon.cpp
     event.hpp event.cpp
 

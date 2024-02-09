@@ -1,69 +1,47 @@
 #ifndef ICON_HPP
 #define ICON_HPP
 #include "framebuffer.hpp"
+#include "asyncman.hpp"
 
 #include <etl/string_view.h>
 #include <etl/vector.h>
 #include <etl/variant.h>
+#include <etl/hash.h>
 
 
-class Icon {
-    friend class Animate;
+class Image {
+    friend class Animation;
 
     Framebuffer image;
-    unsigned x,
-             y;
     bool inverted = false;
-    etl::string_view name;
+    size_t name_hash;
 
 public:
-    Icon(const char *filename, unsigned width = 16, unsigned height = 16, unsigned x = 0, unsigned y = 0, etl::string_view name = "Empty")
-          : image(width, height), x(x), y(y), name(name) {
-        set_image(load_icon(filename));
+    Image(const char *filename, unsigned width = 16, unsigned height = 16, etl::string_view name = "Empty")
+          : image(width, height) {
+        name_hash = etl::hash<etl::string_view>()(name);
+        set_framebuffer(load(filename));
     }
 
-    const Framebuffer& get_image() const {
+    bool operator ==(etl::string_view v) const {
+        return etl::hash<etl::string_view>()(v) == name_hash;
+    }
+
+    const Framebuffer& get_framebuffer() const {
         return image;
     }
-    void set_image(const Framebuffer::ROData& buf);
-
-    unsigned get_x() const {
-        return x;
-    }
-    void set_x(unsigned v) {
-        x = v;
-    }
-    unsigned get_y() const {
-        return y;
-    }
-    void set_y(unsigned v) {
-        y = v;
-    }
-
-    unsigned get_width() const {
-        return image.get_width();
-    }
-    unsigned get_height() const {
-        return image.get_height();
-    }
-
-    etl::string_view get_name() const {
-        return name;
-    }
-    void get_name(etl::string_view& v) {
-        name = v;
-    }
+    void set_framebuffer(const Framebuffer::ROData& buf);
 
     bool is_inverted() const {
         return inverted;
     }
     void set_inverted(bool v);
 
-    Framebuffer::ROData load_icon(const char *filename);
+    Framebuffer::ROData load(const char *filename);
 };
 
 
-class Animate {
+class Animation {
     friend class Toolbar; // Toorbar is doing stupid things in generate_data(), so we gotta do this...
 
 public:
@@ -76,109 +54,70 @@ public:
 
     enum AnimationType {
         default_,
+        reverse,
         loop,
-        bounce,
-        reverse
+        bounce
     };
 
 private:
-    etl::vector<Icon, 16> frames;
-    unsigned current_frame = 0;
+    etl::vector<Image, 16> frames;
     AnimationSpeed speed = normal;
-    unsigned speed_value = 0;
-    bool done = false;
-    unsigned loop_count = 1;
-    bool bouncing = false;
-    AnimationType animation_type;
-    unsigned pause = 0;
-    bool active = false;
+    AnimationType animation_type = default_;
+    UniqueAsyncManHandle async;
+
+    unsigned frame = 0;
+    unsigned short repeats = -1;
     unsigned x,
              y;
-    unsigned width,
-             height;
-    bool cached = false;
-    const char *filename;
+
+    void load(const char *filename, unsigned width, unsigned height);
 
 public:
-    Animate(const char *filename = NULL, AnimationType animation_type = default_, unsigned x = 0, unsigned y = 0, unsigned width = 16, unsigned height = 16, etl::vector<Icon, 16>&& frames = {})
-        : frames(etl::move(frames)), animation_type(animation_type), x(x), y(y), width(width), height(height), filename(filename) {}
-
-    bool is_active() const {
-        return active;
-    }
-    void set_active(bool v);
+    Animation(AsyncMan& aman, const char *filename = NULL, AnimationType animation_type = default_, unsigned x = 0, unsigned y = 0, unsigned width = 16, unsigned height = 16, etl::vector<Image, 16>&& frames = {});
+    Animation(const Animation&) = delete;
+    Animation(Animation&&) = delete;
 
     AnimationSpeed get_speed() const {
         return speed;
     }
-    void set_speed(AnimationSpeed v);
+    void set_speed(AnimationSpeed v) {
+        speed = v;
+    }
 
     AnimationType get_animation_type() const {
         return animation_type;
     }
     void set_animation_type(AnimationType v) {
         animation_type = v;
+        reset();
     }
 
-    const char *get_filename() {
-        return filename;
-    }
-    void set_filename(const char *v) {
-        filename = v;
+    unsigned get_frame_count() const {
+        return frames.size();
     }
 
-    /// progress the current frame
-    void do_forward();
-    /// reversely progress the current frame
-    void do_reverse();
-
-    /// Load the animation files
-    void load();
-    /// Unload animation files
-    void unload();
-
-    /// Animates the frames based on the animation type and for the number of times specified
-    void do_animate(Framebuffer& fbuf);
-
-    unsigned get_max_frame_index() const {
-        return frames.size() - 1;
-    }
-
-    bool is_done() {
-        if (done) {
-            done = false; // Accessing a "property" should NEVER have any side-effects!!!
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    void stop() {
-        loop_count = 0;
-        bouncing = false;
-        done = true;
-    }
-
-    /// Loops the animation
-    /// if no is -1 the animation will continue looping until stop() is called
-    void do_loop(int no = -1) {
-        if (no != -1)
-            loop_count = no;
+    bool is_done() const {
+        if (animation_type == default_ || animation_type == reverse)
+            return frame >= get_frame_count();
         else
-            loop_count = -1;
-
-        animation_type = loop;
+            return repeats >= frame/frames.size();
     }
 
-    /// Loops the animation forwared, then backward, the number of time specified in no,
-    /// if no is -1 it will animate infinately
-    void do_bounce(int no = -1) {
-        if (no != -1)
-            loop_count = no;
-        else
-            loop_count = -1;
+    void reset() {
+        frame = 0;
+    }
+    void set_active(bool v) {
+        async->active = v;
+    }
+    bool is_active() const {
+        return async->active;
+    }
 
-        animation_type = bounce;
+    unsigned short get_repeats() const {
+        return repeats;
+    }
+    void set_repeats(unsigned short v) {
+        repeats = v;
     }
 
     unsigned get_x() const {
@@ -194,76 +133,48 @@ public:
         y = v;
     }
 
-    unsigned get_width() const {
-        return get_width();
-    }
-    unsigned get_height() const {
-        return get_height();
-    }
+    const Image& get_current_image() const;
 };
 
 
-using OptionallyAnimatedIconBase = etl::variant<Icon, Animate>;
+using OptionallyAnimatedIconBase = etl::variant<Image, Animation>;
 
 class OptionallyAnimatedIcon : public OptionallyAnimatedIconBase {
 public:
     using OptionallyAnimatedIconBase::OptionallyAnimatedIconBase;
 
+    bool operator ==(etl::string_view) const;
     void set_inverted(bool v);
-    etl::string_view get_name() const;
 };
 
 
 class Toolbar {
-    etl::vector<OptionallyAnimatedIcon, 14> icon_array;
-    unsigned spacer = 1;
-    int selected_index = -1;
+    etl::vector<OptionallyAnimatedIcon, 14> images;
+    constexpr static unsigned spacer = 2;
+    int selection_index;
 
 public:
-    Toolbar() {}
+    Toolbar(decltype(images)&& images, unsigned initial_index = 0)
+          : images(std::move(images)), selection_index(initial_index) {
+        this->images[selection_index].set_inverted(true);
+    }
 
     Toolbar(const Toolbar&) = delete;
 
     Toolbar(Toolbar&& o)
-        : icon_array(etl::move(o.icon_array)), spacer(o.spacer), selected_index(o.selected_index) {}
+        : images(etl::move(o.images)), selection_index(o.selection_index) {}
 
-    void add_item(OptionallyAnimatedIcon icon) {
-        icon_array.emplace_back(etl::move(icon));
+    bool operator ==(etl::string_view v) const {
+        return images[selection_index] == v;
+    }
+
+    void set_selection_index(unsigned new_index) {
+        images[selection_index].set_inverted(false);
+        images[new_index].set_inverted(true);
+
+        selection_index = new_index;
     }
 
     void show(Framebuffer& fbuf);
-
-    unsigned get_spacer() const {
-        return spacer;
-    }
-    void set_spacer(unsigned v) {
-        spacer = v;
-    }
-
-    void select(unsigned index, Framebuffer& fbuf) {
-        // Invert icon
-        icon_array[index].set_inverted(true);
-
-        // Update self
-        selected_index = index;
-
-        // Update framebuffer
-        show(fbuf);
-    }
-
-    void unselect(unsigned index, Framebuffer& fbuf) {
-        // Un-invert icon
-        icon_array[index].set_inverted(false);
-
-        // Update self
-        selected_index = -1;
-
-        // Update framebuffer
-        show(fbuf);
-    }
-
-    etl::string_view get_selected_item() const {
-        return icon_array[selected_index].get_name();
-    }
 };
 #endif // ICON_HPP
