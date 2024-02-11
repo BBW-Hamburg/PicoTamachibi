@@ -54,23 +54,25 @@ public:
 
     enum AnimationType {
         default_,
-        reverse,
         loop,
+        reverse,
         bounce
     };
 
 private:
     etl::vector<Image, 16> frames;
     AnimationSpeed speed = normal;
-    AnimationType animation_type = default_;
+    AnimationType type = default_;
     UniqueAsyncManHandle async;
 
-    unsigned frame = 0;
+    unsigned frame_index,
+             step = 0;
     unsigned short repeats = -1;
     unsigned x,
              y;
 
     void load(const char *filename, unsigned width, unsigned height);
+    void update_frame_index();
 
 public:
     Animation(AsyncMan& aman, const char *filename = NULL, AnimationType animation_type = default_, unsigned x = 0, unsigned y = 0, unsigned width = 16, unsigned height = 16, etl::vector<Image, 16>&& frames = {});
@@ -84,11 +86,11 @@ public:
         speed = v;
     }
 
-    AnimationType get_animation_type() const {
-        return animation_type;
+    AnimationType get_type() const {
+        return type;
     }
-    void set_animation_type(AnimationType v) {
-        animation_type = v;
+    void set_type(AnimationType v) {
+        type = v;
         reset();
     }
 
@@ -97,14 +99,13 @@ public:
     }
 
     bool is_done() const {
-        if (animation_type == default_ || animation_type == reverse)
-            return frame >= get_frame_count();
-        else
-            return repeats >= frame/frames.size();
+       if (type == default_)
+            return frame_index >= frames.size();
+        return repeats < frame_index/frames.size();
     }
 
     void reset() {
-        frame = 0;
+        frame_index = 0;
     }
     void set_active(bool v) {
         async->active = v;
@@ -133,7 +134,9 @@ public:
         y = v;
     }
 
-    const Image& get_current_image() const;
+    const Image& get_current_image() const {
+        return frames[frame_index];
+    }
 };
 
 

@@ -1,14 +1,14 @@
 #ifndef ASYNCMAN_HPP
 #define ASYNCMAN_HPP
+#include <functional>
 #include <etl/vector.h>
-#include <etl/delegate.h>
 #include <etl/limits.h>
 
 
 class AsyncMan {
 public:
     using HandleID = uint8_t;
-    using HandleCb = etl::delegate<void()>;
+    using HandleCb = std::function<void()>;
 
     struct Handle {
         HandleID id;

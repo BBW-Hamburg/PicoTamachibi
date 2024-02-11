@@ -43,11 +43,6 @@ void Context::run() {
     etl::array<char, Display::size.buffer_size()> fbuf_data;
     if (!fbuf.load(fbuf_data))
         panic("Bad main fbuf");
-    fbuf.clear();
-
-    bool cancel = false,
-         feeding_time = false,
-         sleeping = false;
 
     // Main loop
     while (true) { //MAP: picotamachibi.py:94

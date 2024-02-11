@@ -49,31 +49,46 @@ void Animation::load(const char *filename, unsigned width, unsigned height) {
     printf("Done loading animation files.\n\n");
 }
 
-Animation::Animation(AsyncMan &aman, const char *filename, AnimationType animation_type, unsigned int x, unsigned int y, unsigned int width, unsigned int height, etl::vector<Image, 16> &&frames)
-    : frames(etl::move(frames)), animation_type(animation_type), async(aman), x(x), y(y) {
-    load(filename, width, height);
+void Animation::update_frame_index() {
+    // Get real_step according to speed
+    unsigned real_step;
+    switch (speed) {
+    case very_slow: real_step = step/20; break;
+    case slow: real_step = step/2; break;
+    case normal: real_step = step; break;
+    case fast: real_step = step*2; break;
+    }
 
-    async->on_tick = AsyncMan::HandleCb::create([this, ctx = &Context::get()] {
-        if (!is_done()) {
-            ++frame;
-            ctx->fbuf.blit(get_current_image().get_framebuffer(), this->x, this->y);
-        }
-    });
+    // Update frame_index according to animation type
+    switch (type) {
+    case default_: frame_index = real_step; break;
+    case loop: frame_index = real_step % frames.size();
+    case reverse: frame_index = frames.size() - 1 - (real_step % frames.size());
+    case bounce: {
+        const auto logical_frame = real_step % (frames.size()*2);
+        if (logical_frame < frames.size())
+            frame_index = logical_frame;
+        else
+            frame_index = frames.size() - (logical_frame - frames.size());
+    } break;
+    default: Context::get().panic("Bd ImgT");
+    }
+
+    frame_index = frame_index % frames.size();
 }
 
-const Image& Animation::get_current_image() const {
-    switch (animation_type) {
-    case default_: return frames[frame];
-    case reverse: return frames[frames.size() - 1 - frame];
-    case loop: return frames[frame % frames.size()];
-    case bounce: {
-        const auto logical_frame = frame % (frames.size()*2);
-        if (logical_frame < frames.size())
-            return frames[logical_frame];
-        else
-            return frames[frames.size() - 1 - logical_frame/2];
-    }
-    }
+Animation::Animation(AsyncMan &aman, const char *filename, AnimationType animation_type, unsigned int x, unsigned int y, unsigned int width, unsigned int height, etl::vector<Image, 16> &&frames)
+      : frames(etl::move(frames)), type(animation_type), async(aman), x(x), y(y) {
+    load(filename, width, height);
+    update_frame_index();
+
+    async->on_tick = [this, ctx = &Context::get()] {
+        if (!is_done()) {
+            ctx->fbuf.blit(get_current_image().get_framebuffer(), this->x, this->y);
+            ++step;
+            update_frame_index();
+        }
+    };
 }
 
 
