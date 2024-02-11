@@ -16,7 +16,7 @@ Context::Animations::Animations(AsyncMan& aman) :
     eat(aman, "eat", Animation::default_, 48, 16, 48, 48),
     babyzzz(aman, "baby_zzz", Animation::loop, 48, 16, 48, 48),
     death(aman, "skull", Animation::loop, 0, 16, 16, 16),
-    go_potty(aman, "potty", Animation::bounce, 64, 16, 48, 48),
+    go_potty(aman, "potty", Animation::default_, 64, 16, 48, 48),
     call_animate(aman, "call_animate", Animation::default_, 108, 0, 16, 16) {
     death.set_speed(Animation::slow);
     babyzzz.set_speed(Animation::very_slow);

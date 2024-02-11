@@ -47,6 +47,8 @@ void Animation::load(const char *filename, unsigned width, unsigned height) {
         }
     }
     printf("Done loading animation files.\n\n");
+
+    reset();
 }
 
 void Animation::update_frame_index() {
@@ -58,6 +60,16 @@ void Animation::update_frame_index() {
     case normal: real_step = step; break;
     case fast: real_step = step*2; break;
     }
+
+    // Check if done
+    if (type == default_)
+        done = real_step >= frames.size();
+    else
+        done = repeats <= real_step/frames.size();
+
+    // Stop here if done
+    if (done)
+        return;
 
     // Update frame_index according to animation type
     switch (type) {

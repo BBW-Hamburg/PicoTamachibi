@@ -68,6 +68,7 @@ private:
     unsigned frame_index,
              step = 0;
     unsigned short repeats = -1;
+    bool done;
     unsigned x,
              y;
 
@@ -99,13 +100,12 @@ public:
     }
 
     bool is_done() const {
-       if (type == default_)
-            return frame_index >= frames.size();
-        return repeats < frame_index/frames.size();
+        return done;
     }
 
     void reset() {
         frame_index = 0;
+        done = false;
     }
     void set_active(bool v) {
         async->active = v;
