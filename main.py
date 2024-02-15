@@ -7,6 +7,8 @@ from sys import exit
 import framebuf
 import gc
 
+# some change
+
 sda = Pin(0)
 scl = Pin(1)
 id = 0
