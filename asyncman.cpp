@@ -53,7 +53,10 @@ AsyncMan::Handle &AsyncMan::get_handle(HandleID id) {
 }
 
 void AsyncMan::tick() {
-    for (auto& handle : handles)
-        if (handle.active && handle.on_tick)
-            handle.on_tick();
+    for (auto& handle : handles) {
+        if (!handle.is_valid())
+            continue;
+        if (handle.active)
+            handle.object->on_tick();
+    }
 }

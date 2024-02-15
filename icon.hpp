@@ -7,14 +7,10 @@
 #include <etl/vector.h>
 #include <etl/variant.h>
 #include <etl/hash.h>
+#include <etl/bitset.h>
 
 
-class Renderable {
-
-};
-
-
-class Image final {
+class Image {
     friend class Animation;
 
     Framebuffer image;
@@ -46,7 +42,18 @@ public:
 };
 
 
-class Animation final {
+class Icon : public Image, AsyncObject {
+    unsigned x, y;
+
+public:
+    Icon(AsyncMan& aman, const char *filename, unsigned x = 0, unsigned y = 0, unsigned width = 16, unsigned height = 16, etl::string_view name = "Empty")
+          : Image(filename, width, height, name), AsyncObject(aman), x(x), y(y) {}
+
+    void on_tick() override;
+};
+
+
+class Animation final : AsyncObject {
     friend class Toolbar; // Toorbar is doing stupid things in generate_data(), so we gotta do this...
 
 public:
@@ -65,6 +72,12 @@ public:
     };
 
 private:
+    enum Flags {
+        done,
+        pause_when_done,
+        flag_count
+    };
+
     etl::vector<Image, 16> frames;
     AnimationSpeed speed = normal;
     AnimationType type = default_;
@@ -72,10 +85,10 @@ private:
 
     unsigned frame_index,
              step = 0;
-    unsigned short repeats = -1;
-    bool done;
     unsigned x,
              y;
+    unsigned short repeats = -1;
+    etl::bitset<flag_count> flags;
 
     void load(const char *filename, unsigned width, unsigned height);
     void update_frame_index();
@@ -84,6 +97,8 @@ public:
     Animation(AsyncMan& aman, const char *filename = NULL, AnimationType animation_type = default_, unsigned x = 0, unsigned y = 0, unsigned width = 16, unsigned height = 16, etl::vector<Image, 16>&& frames = {});
     Animation(const Animation&) = delete;
     Animation(Animation&&) = delete;
+
+    void on_tick() override;
 
     AnimationSpeed get_speed() const {
         return speed;
@@ -105,13 +120,14 @@ public:
     }
 
     bool is_done() const {
-        return done;
+        return flags.test(done);
     }
 
     void reset() {
         frame_index = 0;
-        done = false;
+        flags.reset(done);
     }
+
     void set_active(bool v) {
         async->active = v;
     }
@@ -124,6 +140,13 @@ public:
     }
     void set_repeats(unsigned short v) {
         repeats = v;
+    }
+
+    void set_pause_when_done(bool v) {
+        flags.set(pause_when_done, v);
+    }
+    bool get_pause_when_done() const {
+        return flags.test(pause_when_done);
     }
 
     unsigned get_x() const {

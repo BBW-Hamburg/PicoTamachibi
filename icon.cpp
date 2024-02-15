@@ -5,6 +5,7 @@
 #include <cstdio>
 
 
+
 void Image::set_framebuffer(const Framebuffer::ROData &buf) {
     if (!image.load_ro(buf))
         Context::get().panic("Fail Img load");
@@ -37,6 +38,26 @@ Framebuffer::ROData Image::load(const char *filename) {
 }
 
 
+void Icon::on_tick() {
+    Context::get().fbuf.blit(get_framebuffer(), x, y);
+}
+
+
+Animation::Animation(AsyncMan &aman, const char *filename, AnimationType animation_type, unsigned int x, unsigned int y, unsigned int width, unsigned int height, etl::vector<Image, 16> &&frames)
+      : AsyncObject(aman), frames(etl::move(frames)), type(animation_type), async(aman), x(x), y(y) {
+    load(filename, width, height);
+    update_frame_index();
+}
+
+void Animation::on_tick() {
+    // We assume ticks happen at a constant rate. This means that animations may speed up or down depending on tick rate.
+    if (!is_done()) {
+        Context::get().fbuf.blit(get_current_image().get_framebuffer(), x, y);
+        ++step;
+        update_frame_index();
+    }
+}
+
 void Animation::load(const char *filename, unsigned width, unsigned height) {
     printf("Loading animation files: %s\n", filename);
     for (const auto& file : Context::get().filesystem) {
@@ -62,14 +83,21 @@ void Animation::update_frame_index() {
     }
 
     // Check if done
+    bool done_flag;
     if (type == default_)
-        done = real_step >= frames.size();
+        done_flag = real_step >= frames.size();
     else
-        done = repeats <= real_step/frames.size();
+        done_flag = repeats <= real_step/frames.size();
 
-    // Stop here if done
-    if (done)
-        return;
+    // Handle being done
+    if (get_pause_when_done()) {
+        if (done_flag) {
+            frame_index = get_frame_count()-1;
+            return;
+        }
+    } else {
+        flags.set(done, done_flag);
+    }
 
     // Update frame_index according to animation type
     switch (type) {
@@ -88,21 +116,6 @@ void Animation::update_frame_index() {
 
     frame_index = frame_index % frames.size();
 }
-
-Animation::Animation(AsyncMan &aman, const char *filename, AnimationType animation_type, unsigned int x, unsigned int y, unsigned int width, unsigned int height, etl::vector<Image, 16> &&frames)
-      : frames(etl::move(frames)), type(animation_type), async(aman), x(x), y(y) {
-    load(filename, width, height);
-    update_frame_index();
-
-    async->on_tick = [this, ctx = &Context::get()] {
-        if (!is_done()) {
-            ctx->fbuf.blit(get_current_image().get_framebuffer(), this->x, this->y);
-            ++step;
-            update_frame_index();
-        }
-    };
-}
-
 
 bool OptionallyAnimatedIcon::operator ==(etl::string_view v) const {
     if (index() == 0) {

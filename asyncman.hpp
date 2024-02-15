@@ -11,9 +11,13 @@ public:
     using HandleCb = std::function<void()>;
 
     struct Handle {
-        HandleID id;
+        HandleID id = 0;
         bool active = true;
         class AsyncObject *object;
+
+        bool is_valid() const {
+            return id != 0 && object != nullptr;
+        }
     };
 
 private:
@@ -82,9 +86,15 @@ public:
     AsyncObject(AsyncMan& man) : handle(man) {
         handle->object = this;
     }
+
+    AsyncObject(const AsyncObject& o) : handle(o.handle) {
+        handle->object = this;
+    }
+    AsyncObject(AsyncObject&&) = delete;
+
     virtual ~AsyncObject() {}
 
-    virtual void on_tick() {}
+    virtual void on_tick() = 0;
 };
 
 #endif // ASYNCMAN_HPP

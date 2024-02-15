@@ -21,6 +21,7 @@ Context::Animations::Animations(AsyncMan& aman) :
     death.set_speed(Animation::slow);
     babyzzz.set_speed(Animation::very_slow);
     call_animate.set_speed(Animation::very_slow);
+    call_animate.set_pause_when_done(true);
     go_potty.set_repeats(1);
     go_potty.set_active(true);
     poopy.set_active(false);
