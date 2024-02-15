@@ -37,6 +37,8 @@ def clear():
     """ Clear the screen """
     oled.fill_rect(0,0,128,64,0)
 
+# May the Force be with you // Patrick
+
 # def animate(frames, timer):
 #     for frame in frames:
 #         oled.blit(frame.image, frame.x, frame.y)
