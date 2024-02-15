@@ -1,4 +1,3 @@
-# from icons import food_icon
 from machine import I2C, Pin
 from ssd1306 import SSD1306_I2C
 from icon import Animate, Icon, Toolbar, Button, Event
@@ -8,6 +7,8 @@ import framebuf
 import gc
 
 # some change
+
+# some other change
 
 sda = Pin(0)
 scl = Pin(1)
