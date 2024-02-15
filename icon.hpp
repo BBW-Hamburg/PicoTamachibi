@@ -42,18 +42,18 @@ public:
 };
 
 
-class Icon : public Image, AsyncObject {
+class Icon : public Image, public AsyncObject {
     unsigned x, y;
+
+    void on_tick() override;
 
 public:
     Icon(AsyncMan& aman, const char *filename, unsigned x = 0, unsigned y = 0, unsigned width = 16, unsigned height = 16, etl::string_view name = "Empty")
           : Image(filename, width, height, name), AsyncObject(aman), x(x), y(y) {}
-
-    void on_tick() override;
 };
 
 
-class Animation final : AsyncObject {
+class Animation final : public AsyncObject {
     friend class Toolbar; // Toorbar is doing stupid things in generate_data(), so we gotta do this...
 
 public:
@@ -81,7 +81,6 @@ private:
     etl::vector<Image, 16> frames;
     AnimationSpeed speed = normal;
     AnimationType type = default_;
-    UniqueAsyncManHandle async;
 
     unsigned frame_index,
              step = 0;
@@ -93,12 +92,12 @@ private:
     void load(const char *filename, unsigned width, unsigned height);
     void update_frame_index();
 
+    void on_tick() override;
+
 public:
     Animation(AsyncMan& aman, const char *filename = NULL, AnimationType animation_type = default_, unsigned x = 0, unsigned y = 0, unsigned width = 16, unsigned height = 16, etl::vector<Image, 16>&& frames = {});
     Animation(const Animation&) = delete;
     Animation(Animation&&) = delete;
-
-    void on_tick() override;
 
     AnimationSpeed get_speed() const {
         return speed;
@@ -126,13 +125,6 @@ public:
     void reset() {
         frame_index = 0;
         flags.reset(done);
-    }
-
-    void set_active(bool v) {
-        async->active = v;
-    }
-    bool is_active() const {
-        return async->active;
     }
 
     unsigned short get_repeats() const {

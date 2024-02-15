@@ -76,10 +76,21 @@ public:
     const AsyncMan::Handle *operator ->() const {
         return &man.get_handle(id);
     }
+
+    AsyncMan& get_async_manager() const {
+        return man;
+    }
+    unsigned get_handle_id() const {
+        return id;
+    }
 };
 
 
 class AsyncObject {
+    friend AsyncMan;
+
+    virtual void on_tick() = 0;
+
 public:
     UniqueAsyncManHandle handle;
 
@@ -94,7 +105,32 @@ public:
 
     virtual ~AsyncObject() {}
 
-    virtual void on_tick() = 0;
+    AsyncMan::Handle& operator *() {
+        return get_async_handle();
+    }
+    AsyncMan::Handle *operator ->() {
+        return &get_async_handle();
+    }
+
+    const AsyncMan::Handle& operator *() const {
+        return get_async_handle();
+    }
+    const AsyncMan::Handle *operator ->() const {
+        return &get_async_handle();
+    }
+
+    AsyncMan& get_async_manager() const {
+        return handle.get_async_manager();
+    }
+    AsyncMan::HandleID get_async_handle_id() const {
+        return handle.get_handle_id();
+    }
+    const AsyncMan::Handle& get_async_handle() const {
+        return *handle;
+    }
+    AsyncMan::Handle& get_async_handle() {
+        return *handle;
+    }
 };
 
 #endif // ASYNCMAN_HPP

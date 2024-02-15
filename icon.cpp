@@ -44,7 +44,7 @@ void Icon::on_tick() {
 
 
 Animation::Animation(AsyncMan &aman, const char *filename, AnimationType animation_type, unsigned int x, unsigned int y, unsigned int width, unsigned int height, etl::vector<Image, 16> &&frames)
-      : AsyncObject(aman), frames(etl::move(frames)), type(animation_type), async(aman), x(x), y(y) {
+      : AsyncObject(aman), frames(etl::move(frames)), type(animation_type), x(x), y(y) {
     load(filename, width, height);
     update_frame_index();
 }
