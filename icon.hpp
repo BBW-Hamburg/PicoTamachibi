@@ -9,7 +9,12 @@
 #include <etl/hash.h>
 
 
-class Image {
+class Renderable {
+
+};
+
+
+class Image final {
     friend class Animation;
 
     Framebuffer image;
@@ -41,7 +46,7 @@ public:
 };
 
 
-class Animation {
+class Animation final {
     friend class Toolbar; // Toorbar is doing stupid things in generate_data(), so we gotta do this...
 
 public:
@@ -151,7 +156,7 @@ public:
 };
 
 
-class Toolbar {
+class Toolbar final {
     etl::vector<OptionallyAnimatedIcon, 14> images;
     constexpr static unsigned spacer = 2;
     int selection_index;

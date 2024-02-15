@@ -13,7 +13,7 @@ public:
     struct Handle {
         HandleID id;
         bool active = true;
-        HandleCb on_tick;
+        class AsyncObject *object;
     };
 
 private:
@@ -52,6 +52,12 @@ public:
     ~UniqueAsyncManHandle() {
         man.delete_handle(id);
     }
+    UniqueAsyncManHandle(const UniqueAsyncManHandle& o) : man(o.man) {
+        id = o.man.new_handle().id;
+    }
+    UniqueAsyncManHandle(UniqueAsyncManHandle&& o) : man(o.man), id(o.id) {
+        o.id = 0;
+    }
 
     AsyncMan::Handle& operator *() {
         return man.get_handle(id);
@@ -67,4 +73,18 @@ public:
         return &man.get_handle(id);
     }
 };
+
+
+class AsyncObject {
+public:
+    UniqueAsyncManHandle handle;
+
+    AsyncObject(AsyncMan& man) : handle(man) {
+        handle->object = this;
+    }
+    virtual ~AsyncObject() {}
+
+    virtual void on_tick() {}
+};
+
 #endif // ASYNCMAN_HPP
