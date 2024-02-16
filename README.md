@@ -12,5 +12,8 @@ A Tamagotchi like toy based on PRI Pico
 ## Setup with VSCode
 
 It is recommended to create a new vscode profile for this type of project to have a clean editor.
-
 VSCode will recommend extensions for this project, all of them are required to run the project.
+
+If the console says "MemoryError: memory allocation failed, allocating 81920 bytes" on upload, the Pico needs to be reset.
+
+Please run `> MicroPico > Configure Project` command via `Ctrl+Shift+P` the first time you open the project.
