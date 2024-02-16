@@ -7,6 +7,7 @@
     },
     "micropico.syncFolder": "",
     "micropico.openOnStart": true,
+    "micropico.softResetAfterUpload": true,
     "python.analysis.typeshedPaths": [
         ".vscode\\Pico-W-Stub"
     ],
