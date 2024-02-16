@@ -78,6 +78,7 @@ class ButtonConfig:
                                         "left":2,
                                         "right":4,
                                         "action":3,
+                                        "cancel":5
                                         },
                             "set1":{
                                         "left":20,
