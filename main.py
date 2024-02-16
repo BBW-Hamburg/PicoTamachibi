@@ -6,11 +6,6 @@ from sys import exit
 import framebuf
 import gc
 
-# some change
-# Hier war Roman :)
-# some other change
-#Forking and pulling- yeah - Lu was here :>
-
 sda = Pin(0)
 scl = Pin(1)
 id = 0
@@ -62,7 +57,7 @@ def build_toolbar():
 tb = build_toolbar()
 poopy = Animate(x=96,y=48, width=16, height=16, filename='poop')
 baby = Animate(x=48,y=16, width=48, height=48, filename='baby_bounce', animation_type='bounce')
-eat = Animate(x=48,y=16, width=48, height=48, filename='eab: 20t')
+eat = Animate(x=48,y=16, width=48, height=48, filename='eat')
 babyzzz = Animate(animation_type="loop", x=48,y=16, width=48, height=48, filename='baby_zzz')
 death = Animate(animation_type='bounce', x=40,y=16, width=16, height=16, filename="skull")
 go_potty = Animate(filename="potty", animation_type='bounce',x=64,y=16, width=48, height=48)
@@ -80,10 +75,9 @@ call_animate.speed = 'very slow'
 class ButtonConfig:
     Configurations = {
                             "default":{
-                                        "left":20,
-                                        "right":19,
-                                        "action":18,
-                                        "cancel":16
+                                        "left":2,
+                                        "right":4,
+                                        "action":3,
                                         },
                             "set1":{
                                         "left":20,
