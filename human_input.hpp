@@ -6,6 +6,8 @@
 class Button {
     static void irq_handler(unsigned gpio, uint32_t event_mask);
 
+    static uint32_t global_last_push;
+
     uint32_t last_push = 0;
     unsigned gpio;
     mutable bool pushed = false;
@@ -29,5 +31,9 @@ public:
     bool was_pushed() const;
     bool is_held() const;
     void clear();
+
+    inline static uint32_t get_global_last_push() {
+        return global_last_push;
+    }
 };
 #endif // HUMAN_INPUT_HPP

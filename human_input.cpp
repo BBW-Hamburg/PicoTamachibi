@@ -15,6 +15,8 @@ static inline uint32_t get_time_ms() {
 static etl::array<struct Button*, 8> buttons;
 
 
+uint32_t Button::global_last_push = 0;
+
 Button::Button(unsigned gpio) : gpio(gpio) {
     gpio_init(gpio);
     gpio_set_dir(gpio, GPIO_IN);
@@ -47,9 +49,9 @@ Button::~Button() {
 void Button::irq_handler(unsigned gpio, uint32_t event_mask) {
     for (auto& button : buttons) {
         if (button && button->gpio == gpio) {
-            if (get_time_ms() - button->last_push > 400) {
+            if (get_time_ms() - button->last_push > 200) {
                 button->pushed = true;
-                button->last_push = get_time_ms();
+                global_last_push = button->last_push = get_time_ms();
                 break;
             }
         }

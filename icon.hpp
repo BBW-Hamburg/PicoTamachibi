@@ -151,7 +151,7 @@ public:
 
 
 class Toolbar final : public AsyncObject {
-    etl::vector<OptionallyAnimatedIcon, 14> images;
+    etl::vector<OptionallyAnimatedIcon, 14> icons;
     int selection_index;
 
     void on_tick() override;
@@ -159,28 +159,43 @@ class Toolbar final : public AsyncObject {
 public:
     constexpr static unsigned spacer = 2;
 
-    Toolbar(AsyncMan& aman, decltype(images)&& images, unsigned initial_index = 0)
-          : AsyncObject(aman), images(std::move(images)), selection_index(initial_index) {
-        this->images[selection_index].set_inverted(true);
+    Toolbar(AsyncMan& aman, decltype(icons)&& images, unsigned initial_index = 0)
+          : AsyncObject(aman), icons(std::move(images)), selection_index(initial_index) {
+        this->icons[selection_index].set_inverted(true);
     }
 
     Toolbar(const Toolbar&) = delete;
     Toolbar(Toolbar&& o)
-        : AsyncObject(o.get_async_manager()), images(etl::move(o.images)), selection_index(o.selection_index) {}
+        : AsyncObject(o.get_async_manager()), icons(etl::move(o.icons)), selection_index(o.selection_index) {}
 
     bool operator ==(etl::string_view v) const {
-        return images[selection_index] == v;
+        return icons[selection_index] == v;
     }
 
     etl::span<OptionallyAnimatedIcon> get_images() {
-        return images;
+        return icons;
     }
 
     void set_selection_index(unsigned new_index) {
-        images[selection_index].set_inverted(false);
-        images[new_index].set_inverted(true);
+        icons[selection_index].set_inverted(false);
+        icons[new_index].set_inverted(true);
 
         selection_index = new_index;
+    }
+
+    void next() {
+        auto index = selection_index;
+        if (++index == icons.size())
+            index = 0;
+
+        set_selection_index(index);
+    }
+    void previous() {
+        auto index = selection_index;
+        if (--index < 0)
+            index = icons.size()-1;
+
+        set_selection_index(index);
     }
 };
 #endif // ICON_HPP

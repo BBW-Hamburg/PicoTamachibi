@@ -1,4 +1,4 @@
-#ifndef CONTEXT_HPP
+﻿#ifndef CONTEXT_HPP
 #define CONTEXT_HPP
 #include "human_input.hpp"
 #include "display.hpp"
@@ -14,12 +14,12 @@
 
 class Context {
 public:
-    // Pubic hardware
+    // Public hardware
     Display oled = Display(sda, scl, i2c0);
 
-    const Button button_a = 4, //MAP: picotamachibi.py:63
-                 button_b = 3,
-                 button_x = 2,
+    const Button button_a = 2,
+                 button_b = 4,
+                 button_x = 3,
                  button_dbg = 8;
 
     Filesystem filesystem;

@@ -36,6 +36,9 @@ Display::Display(unsigned sda, unsigned scl, i2c_inst *i2c) {
     disp.external_vcc = false;
     ssd1306_init(&disp, size.width, size.height, 0x3C, i2c);
     ssd1306_clear(&disp);
+
+    // Show initial image
+    fullframe_text_simple("Starting...");
 }
 
 void Display::end_frame() {

@@ -104,8 +104,8 @@ basiccoro::AwaitableTask<void> Context::energy_loop() {
         if (animations.babyzzz->active) {
             // Increase energy, health and happiness if possible
             health = etl::min(health + 0.011f, 1.0f);
-            happiness = etl::min(happiness*1.03f, 1.0f);
-            energy += 0.025f;
+            happiness = etl::min(happiness*1.03f + 0.1f, 1.1f) - 0.1f;
+            energy += 0.025f/health;
             // Stop sleeping if full energy
             if (energy >= 1.0f) {
                 energy = 1.0f;
@@ -113,14 +113,16 @@ basiccoro::AwaitableTask<void> Context::energy_loop() {
             }
         } else {
             // Decrease energy if possible, health and happiness too if close to depletion
-            energy -= 0.025f;
+            energy -= 0.025f/health;
             if (energy < 0.2f)
                 happiness = etl::clamp(happiness*0.82f, 0.0f, 0.7f);
             if (energy < 0.1f)
                 health = etl::max(health*0.9f, 0.0f);
             // Fall asleep if too tired
-            if (energy <= 0.01f)
+            if (energy <= 0.01f) {
+                energy = 0.0f;
                 chibi = animations.babyzzz;
+            }
         }
     }
 }
@@ -160,14 +162,21 @@ void Context::run() {
         if (health < 0.01f)
             chibi = animations.death;
 
+        // Process input
         if (button_dbg.was_pushed())
             health = 0.f;
+        if (button_a.was_pushed())
+            tb.previous();
+        else if (button_b.was_pushed())
+            tb.next();
 
         // Tick everything
         async_man.tick();
 
         // Render complete image
         oled.fullframe_framebuffer(fbuf);
+
+        // Just wait
         sleep_ms(50); //MAP: picotamachibi.py:213
     }
 }

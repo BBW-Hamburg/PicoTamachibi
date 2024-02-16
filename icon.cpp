@@ -149,7 +149,7 @@ void Toolbar::on_tick() {
     unsigned count = 0;
 
     // Blit icons into framebuffer
-    for (const auto& icon : images) {
+    for (const auto& icon : icons) {
         ++count;
         switch (icon.index()) {
         case 0: {
