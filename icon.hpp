@@ -20,6 +20,7 @@ class Image {
     size_t name_hash;
 
 public:
+    Image() : image(0, 0) {}
     Image(const char *filename, unsigned width = 16, unsigned height = 16, etl::string_view name = "Empty")
           : image(width, height) {
         name_hash = etl::hash<etl::string_view>()(name);
@@ -82,7 +83,7 @@ private:
     AnimationType type = default_;
 
     unsigned frame_index,
-             step = 0;
+             step;
     etl::bitset<flag_count> flags;
 
     basiccoro::SingleEvent<void> on_done;
@@ -91,6 +92,7 @@ private:
     void update_frame_index();
 
     void on_tick() override;
+    void on_activate() override;
 
 public:
     AnimationSpeed speed = normal;
@@ -120,8 +122,9 @@ public:
     }
 
     void reset() {
-        frame_index = 0;
+        step = 0;
         flags.reset(done);
+        update_frame_index();
     }
 
     void set_pause_when_done(bool v) {
@@ -172,7 +175,7 @@ public:
         return icons[selection_index] == v;
     }
 
-    etl::span<OptionallyAnimatedIcon> get_images() {
+    etl::span<OptionallyAnimatedIcon> get_icons() {
         return icons;
     }
 
@@ -181,6 +184,10 @@ public:
         icons[new_index].set_inverted(true);
 
         selection_index = new_index;
+    }
+
+    void refresh_selection() {
+        icons[selection_index].set_inverted(true);
     }
 
     void next() {

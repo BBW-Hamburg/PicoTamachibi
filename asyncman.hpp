@@ -10,10 +10,25 @@ public:
     using HandleID = uint8_t;
     using HandleCb = std::function<void()>;
 
-    struct Handle {
+    class Handle {
+        friend AsyncMan;
+
         HandleID id = 0;
         bool active = true;
+
+        Handle(HandleID id) : id(id) {}
+
+    public:
         class AsyncObject *object = nullptr;
+
+        HandleID get_id() const {
+            return id;
+        }
+
+        bool is_active() const {
+            return active;
+        }
+        void set_active(bool v);
 
         bool is_valid() const {
             return id != 0 && object != nullptr;
@@ -33,7 +48,7 @@ public:
     AsyncMan(AsyncMan&&) = delete;
 
     Handle& new_handle() {
-        Handle fres{find_free_id()};
+        Handle fres(find_free_id());
         return handles.emplace_back(std::move(fres));
     }
     void delete_handle(HandleID id);
@@ -52,17 +67,17 @@ class UniqueAsyncManHandle {
 public:
     UniqueAsyncManHandle(AsyncMan& man, bool active = false, AsyncObject *object = nullptr) : man(man) {
         auto& handle = man.new_handle();
-        id = handle.id;
+        id = handle.get_id();
         handle.object = object;
-        handle.active = active;
+        handle.set_active(active);
     }
     ~UniqueAsyncManHandle() {
         man.delete_handle(id);
     }
     UniqueAsyncManHandle(const UniqueAsyncManHandle& o) : man(o.man) {
         auto& handle = o.man.new_handle();
-        id = handle.id;
-        handle.active = o->active;
+        id = handle.get_id();
+        handle.set_active(o->is_active());
     }
     UniqueAsyncManHandle(UniqueAsyncManHandle&& o) : man(o.man), id(o.id) {
         o.id = 0;
@@ -95,6 +110,8 @@ class AsyncObject {
     friend AsyncMan;
 
     virtual void on_tick() = 0;
+    virtual void on_activate() {}
+    virtual void on_deactivate() {}
 
 public:
     UniqueAsyncManHandle handle;
@@ -143,17 +160,17 @@ class AsyncSelector {
 public:
     AsyncSelector(AsyncObject& object)
           : current(&object) {
-        (*current)->active = true;
+        (*current)->set_active(true);
     }
     ~AsyncSelector() {
-        (*current)->active = false;
+        (*current)->set_active(false);
     }
 
     // This should be stacking and based on priorities to prevent conflicts
     auto operator =(AsyncObject& object) {
-        (*current)->active = false;
+        (*current)->set_active(false);
         current = &object;
-        (*current)->active = true;
+        (*current)->set_active(true);
     }
 
     operator AsyncObject &() const {

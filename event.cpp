@@ -9,7 +9,7 @@ static inline uint32_t get_time_ms() {
 
 void Timer::on_tick() {
     if (get_time_ms() >= expiry) {
-        (*this)->active = false;
+        (*this)->set_active(false);
         on_done.set();
     }
 }
@@ -22,5 +22,5 @@ basiccoro::AwaitableTask<void> Timer::async_sleep(unsigned int milliseconds) {
 void Timer::background_sleep(unsigned int milliseconds) {
     expiry = get_time_ms() + milliseconds;
     on_done.unset();
-    (*this)->active = true;
+    (*this)->set_active(true);
 }

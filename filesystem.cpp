@@ -12,22 +12,19 @@ INCBIN(fs_blob, SOURCE_DIR "/fs.tar");
 
 Filesystem::Filesystem() {
     const auto err = mtar_open(&tar, reinterpret_cast<const void *>(incbin_fs_blob_start), "rb");
-    if (err != MTAR_ESUCCESS)
-        Context::get().panic("TAR init fail ");
+    ASSERT_PANIC("TAR init fail", err == MTAR_ESUCCESS);
 }
 
 etl::span<const char> Filesystem::read_file(const char *path) {
     // Find file
     mtar_header_t h;
     auto err = mtar_find(&tar, path, &h);
-    if (err != MTAR_ESUCCESS)
-        Context::get().panic("TAR find fail ");
+    ASSERT_PANIC("TAR find fail", err == MTAR_ESUCCESS);
 
     // Get data
     const void *ptr;
     err = mtar_get_data(&tar, &ptr);
-    if (err != MTAR_ESUCCESS)
-        Context::get().panic("TAR read fail ");
+    ASSERT_PANIC("TAR read fail", err == MTAR_ESUCCESS);
 
     // Create span
     return {reinterpret_cast<const char*>(ptr), h.size};
@@ -48,8 +45,7 @@ FilesystemIterator Filesystem::end() {
 
 FilesystemIterator& FilesystemIterator::operator ++() {
     // Panic if valueless
-    if (!*this)
-        Context::get().panic("TAR bad iter");
+    ASSERT_PANIC("TAR bar iter", *this);
 
     // Restore our seek location
     mtar_seek(&parent.tar, seek_pos);

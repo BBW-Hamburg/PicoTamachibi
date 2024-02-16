@@ -3,6 +3,16 @@
 
 
 
+void AsyncMan::Handle::set_active(bool v) {
+    if (active == v)
+        return;
+    if ((active = v))
+        object->on_activate();
+    else
+        object->on_deactivate();
+}
+
+
 AsyncMan::HandleID AsyncMan::find_free_id() const {
     // Make sure handle list isn't going to overflow
     if (handles.full())

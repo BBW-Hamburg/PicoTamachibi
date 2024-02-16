@@ -29,25 +29,27 @@ Context::Animations::Animations(AsyncMan& aman) :
     call_animate.set_pause_when_done(true);
     go_potty.repeats = 1;
 
-    poopy->active = false;
-    baby->active = false;
-    eat->active = false;
-    babyzzz->active = false;
-    death->active = false;
-    go_potty->active = false;
+    poopy->set_active(false);
+    baby->set_active(false);
+    eat->set_active(false);
+    babyzzz->set_active(false);
+    death->set_active(false);
+    go_potty->set_active(false);
 }
 
 
 Context::Context() : tb(async_man, {
                            Image("food.pbm", 16, 16, "food"),
-                           Image("lightbulb.pbm", 16, 16, "lightbulb"),
+                           Image(),
                            Image("game.pbm", 16, 16, "game"),
                            Image("firstaid.pbm", 16, 16, "firstaid"),
                            Image("toilet.pbm", 16, 16, "toilet"),
                            Image("heart.pbm", 16, 16, "heart"),
                            Image("call.pbm", 16, 16, "call")
                         }),
-    animations(async_man), chibi(animations.baby), fbuf(oled.size.width, oled.size.height) {}
+      animations(async_man), chibi(animations.baby), fbuf(oled.size.width, oled.size.height) {
+    update_lamp();
+}
 
 
 void Context::popup(etl::string_view message, Image image) {
@@ -64,6 +66,11 @@ void Context::popup(etl::string_view message, Image image) {
     sleep_ms(2000);
 }
 
+void Context::update_lamp() {
+    tb.get_icons()[1] = Image(lamp?"lightbulb.pbm":"lightbulb_off.pbm", 16, 15, "lightbulb");
+    tb.refresh_selection();
+}
+
 /// Just poops, then goes back
 basiccoro::AwaitableTask<void> Context::poop() {
     // Back up previous animation
@@ -72,7 +79,7 @@ basiccoro::AwaitableTask<void> Context::poop() {
     chibi = animations.go_potty;
     co_await animations.go_potty.wait_done();
     // Show poop
-    animations.poopy->active = true;
+    animations.poopy->set_active(true);
     // Restore previous animation
     chibi = previous;
 }
@@ -84,7 +91,7 @@ basiccoro::AwaitableTask<void> Context::poop_loop() {
         // Wait about 7 minutes
         co_await timer.async_sleep(420500);
         // Decrease happiness if poop hasn't been cleaned up
-        if (animations.poopy->active)
+        if (animations.poopy->is_active())
             happiness *= 0.7f;
         // Poop again
         co_await poop();
@@ -101,13 +108,13 @@ basiccoro::AwaitableTask<void> Context::energy_loop() {
         // Wait 7.5 seconds
         co_await timer.async_sleep(7500);
         // Check if sleeping
-        if (animations.babyzzz->active) {
+        if (animations.babyzzz->is_active()) {
             // Increase energy, health and happiness if possible
             health = etl::min(health + 0.011f, 1.0f);
-            happiness = etl::min(happiness*1.03f + 0.1f, 1.1f) - 0.1f;
+            happiness = etl::min((happiness + 0.15f)*(lamp?1.02f:1.03f), 1.15f) - 0.15f;
             energy += 0.025f/health;
             // Stop sleeping if full energy
-            if (energy >= 1.0f) {
+            if ((lamp && energy >= 0.6f) || (!lamp && energy >= 1.0f)) {
                 energy = 1.0f;
                 chibi = animations.baby;
             }
@@ -119,7 +126,7 @@ basiccoro::AwaitableTask<void> Context::energy_loop() {
             if (energy < 0.1f)
                 health = etl::max(health*0.9f, 0.0f);
             // Fall asleep if too tired
-            if (energy <= 0.01f) {
+            if ((lamp && energy <= 0.01f) || (!lamp && energy <= 0.18f)) {
                 energy = 0.0f;
                 chibi = animations.babyzzz;
             }
@@ -136,7 +143,7 @@ basiccoro::AwaitableTask<void> Context::hygiene_loop() {
         co_await timer.async_sleep(15000);
 
         // Decrease health if there's poop
-        if (animations.poopy->active)
+        if (animations.poopy->is_active())
             health = std::max(health * 0.95f, 0.0f);
     }
 }
@@ -156,6 +163,7 @@ void Context::run() {
         // Clear framebuffer
         fbuf.clear();
 
+        // Print debug info
         printf("health = %f  energy = %f  happiness = %f\n", health, energy, happiness);
 
         // Check for death
@@ -165,10 +173,24 @@ void Context::run() {
         // Process input
         if (button_dbg.was_pushed())
             health = 0.f;
-        if (button_a.was_pushed())
+        if (button_left.was_pushed())
             tb.previous();
-        else if (button_b.was_pushed())
+        else if (button_right.was_pushed())
             tb.next();
+        if (button_ok.was_pushed()) {
+            // Handle toolbar icons
+            if (tb == "toilet") {
+                // Clean poop if any
+                if (animations.poopy->is_active()) {
+                    popup("Cleaning...", Image("toilet.pbm"));
+                    animations.poopy->set_active(false);
+                }
+            } else if (tb == "lightbulb") {
+                // Toggle lightswitch
+                lamp = !lamp;
+                update_lamp();
+            }
+        }
 
         // Tick everything
         async_man.tick();

@@ -17,9 +17,9 @@ public:
     // Public hardware
     Display oled = Display(sda, scl, i2c0);
 
-    const Button button_a = 2,
-                 button_b = 4,
-                 button_x = 3,
+    const Button button_left = 2,
+                 button_right = 4,
+                 button_ok = 3,
                  button_dbg = 8;
 
     Filesystem filesystem;
@@ -39,6 +39,7 @@ private:
     float health = 1.0f,
           happiness = 0.5f,
           energy = 1.0f;
+    bool lamp = true;
 
     // Animations
     struct Animations {
@@ -54,6 +55,7 @@ private:
 
     // Helper functions
     void popup(etl::string_view, Image);
+    void update_lamp();
 
     // Coroutines
     basiccoro::AwaitableTask<void> poop();
