@@ -1,21 +1,26 @@
 #include "event.hpp"
-#include "framebuffer.hpp"
-#include "display.hpp"
-
-#include <pico/stdlib.h>
 
 
 
-void Event::popup(Framebuffer& fbuf, Display& oled) {
-    constexpr auto size = Display::size;
+static inline uint32_t get_time_ms() {
+    return us_to_ms(time_us_64());
+}
 
-    fbuf.clear();
-    fbuf.rect(0, size.width-1, 16, size.height-1);
-    fbuf.blit(sprite.get_framebuffer(), 5, 26);
-    oled.begin_frame();
-    oled.render_framebuffer(fbuf);
-    oled.render_text({28, 30}, message);
-    oled.end_frame();
 
-    sleep_ms(2000);
+void Timer::on_tick() {
+    if (get_time_ms() >= expiry) {
+        (*this)->active = false;
+        on_done.set();
+    }
+}
+
+basiccoro::AwaitableTask<void> Timer::async_sleep(unsigned int milliseconds) {
+    background_sleep(milliseconds);
+    co_await on_done;
+}
+
+void Timer::background_sleep(unsigned int milliseconds) {
+    expiry = get_time_ms() + milliseconds;
+    on_done.unset();
+    (*this)->active = true;
 }

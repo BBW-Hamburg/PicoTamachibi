@@ -2,6 +2,8 @@
 #define ICON_HPP
 #include "framebuffer.hpp"
 #include "asyncman.hpp"
+#include "basic-coro/SingleEvent.hpp"
+#include "basic-coro/AwaitableTask.hpp"
 
 #include <etl/string_view.h>
 #include <etl/vector.h>
@@ -43,19 +45,17 @@ public:
 
 
 class Icon : public Image, public AsyncObject {
-    unsigned x, y;
-
     void on_tick() override;
 
 public:
+    unsigned x, y;
+
     Icon(AsyncMan& aman, const char *filename, unsigned x = 0, unsigned y = 0, unsigned width = 16, unsigned height = 16, etl::string_view name = "Empty")
           : Image(filename, width, height, name), AsyncObject(aman), x(x), y(y) {}
 };
 
 
 class Animation final : public AsyncObject {
-    friend class Toolbar; // Toorbar is doing stupid things in generate_data(), so we gotta do this...
-
 public:
     enum AnimationSpeed {
         very_slow,
@@ -79,15 +79,13 @@ private:
     };
 
     etl::vector<Image, 16> frames;
-    AnimationSpeed speed = normal;
     AnimationType type = default_;
 
     unsigned frame_index,
              step = 0;
-    unsigned x,
-             y;
-    unsigned short repeats = -1;
     etl::bitset<flag_count> flags;
+
+    basiccoro::SingleEvent<void> on_done;
 
     void load(const char *filename, unsigned width, unsigned height);
     void update_frame_index();
@@ -95,16 +93,15 @@ private:
     void on_tick() override;
 
 public:
+    AnimationSpeed speed = normal;
+
+    unsigned short repeats = -1;
+    unsigned x,
+             y;
+
     Animation(AsyncMan& aman, const char *filename = NULL, AnimationType animation_type = default_, unsigned x = 0, unsigned y = 0, unsigned width = 16, unsigned height = 16, etl::vector<Image, 16>&& frames = {});
     Animation(const Animation&) = delete;
     Animation(Animation&&) = delete;
-
-    AnimationSpeed get_speed() const {
-        return speed;
-    }
-    void set_speed(AnimationSpeed v) {
-        speed = v;
-    }
 
     AnimationType get_type() const {
         return type;
@@ -127,13 +124,6 @@ public:
         flags.reset(done);
     }
 
-    unsigned short get_repeats() const {
-        return repeats;
-    }
-    void set_repeats(unsigned short v) {
-        repeats = v;
-    }
-
     void set_pause_when_done(bool v) {
         flags.set(pause_when_done, v);
     }
@@ -141,22 +131,11 @@ public:
         return flags.test(pause_when_done);
     }
 
-    unsigned get_x() const {
-        return x;
-    }
-    void set_x(unsigned v) {
-        x = v;
-    }
-    unsigned get_y() const {
-        return y;
-    }
-    void set_y(unsigned v) {
-        y = v;
-    }
-
     const Image& get_current_image() const {
         return frames[frame_index];
     }
+
+    basiccoro::AwaitableTask<void> wait_done();
 };
 
 
@@ -171,24 +150,30 @@ public:
 };
 
 
-class Toolbar final {
+class Toolbar final : public AsyncObject {
     etl::vector<OptionallyAnimatedIcon, 14> images;
-    constexpr static unsigned spacer = 2;
     int selection_index;
 
+    void on_tick() override;
+
 public:
-    Toolbar(decltype(images)&& images, unsigned initial_index = 0)
-          : images(std::move(images)), selection_index(initial_index) {
+    constexpr static unsigned spacer = 2;
+
+    Toolbar(AsyncMan& aman, decltype(images)&& images, unsigned initial_index = 0)
+          : AsyncObject(aman), images(std::move(images)), selection_index(initial_index) {
         this->images[selection_index].set_inverted(true);
     }
 
     Toolbar(const Toolbar&) = delete;
-
     Toolbar(Toolbar&& o)
-        : images(etl::move(o.images)), selection_index(o.selection_index) {}
+        : AsyncObject(o.get_async_manager()), images(etl::move(o.images)), selection_index(o.selection_index) {}
 
     bool operator ==(etl::string_view v) const {
         return images[selection_index] == v;
+    }
+
+    etl::span<OptionallyAnimatedIcon> get_images() {
+        return images;
     }
 
     void set_selection_index(unsigned new_index) {
@@ -197,7 +182,5 @@ public:
 
         selection_index = new_index;
     }
-
-    void show(Framebuffer& fbuf);
 };
 #endif // ICON_HPP

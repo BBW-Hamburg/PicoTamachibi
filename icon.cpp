@@ -49,6 +49,12 @@ Animation::Animation(AsyncMan &aman, const char *filename, AnimationType animati
     update_frame_index();
 }
 
+basiccoro::AwaitableTask<void> Animation::wait_done() {
+    on_done.unset();
+    co_await on_done;
+    co_return;
+}
+
 void Animation::on_tick() {
     // We assume ticks happen at a constant rate. This means that animations may speed up or down depending on tick rate.
     if (!is_done()) {
@@ -99,6 +105,10 @@ void Animation::update_frame_index() {
         flags.set(done, done_flag);
     }
 
+    // Call on_done event if any
+    if (done_flag)
+        on_done.set();
+
     // Update frame_index according to animation type
     switch (type) {
     case default_: frame_index = real_step; break;
@@ -132,7 +142,9 @@ void OptionallyAnimatedIcon::set_inverted(bool v) {
 }
 
 
-void Toolbar::show(Framebuffer& fbuf) {
+void Toolbar::on_tick() {
+    auto& fbuf = Context::get().fbuf;
+
     unsigned x = 0; //MAP: icon.py:169
     unsigned count = 0;
 
@@ -152,3 +164,4 @@ void Toolbar::show(Framebuffer& fbuf) {
         }
     }
 }
+

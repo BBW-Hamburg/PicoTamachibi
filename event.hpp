@@ -1,28 +1,29 @@
 #ifndef EVENT_HPP
 #define EVENT_HPP
-#include "icon.hpp"
-#include "framebuffer.hpp"
+#include "asyncman.hpp"
+#include "basic-coro/AwaitableTask.hpp"
+#include "basic-coro/SingleEvent.hpp"
 
 #include <etl/string.h>
 #include <etl/string_view.h>
+#include <pico/stdlib.h>
 
 
-class Event {
-    Image sprite;
-    etl::string<16> message;
+class Timer final : public AsyncObject {
+    basiccoro::SingleEvent<void> on_done;
+    unsigned expiry;
+
+    void on_tick() override;
 
 public:
-    Event(const Image& sprite)
-        : sprite(sprite) {}
+    Timer(AsyncMan& aman) : AsyncObject(aman, false) {}
 
-    etl::string_view get_message() const {
-        return message;
-    }
-    void set_message(const etl::string<16>& v) {
-        message = v;
-    }
+    basiccoro::AwaitableTask<void> async_sleep(unsigned milliseconds);
+    void background_sleep(unsigned milliseconds);
 
-    void popup(Framebuffer& fbuf, class Display& oled);
+    bool has_expired() const {
+        return on_done.isSet();
+    }
 };
 
 #endif // EVENT_HPP

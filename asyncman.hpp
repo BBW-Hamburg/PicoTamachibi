@@ -13,7 +13,7 @@ public:
     struct Handle {
         HandleID id = 0;
         bool active = true;
-        class AsyncObject *object;
+        class AsyncObject *object = nullptr;
 
         bool is_valid() const {
             return id != 0 && object != nullptr;
@@ -50,14 +50,19 @@ class UniqueAsyncManHandle {
     AsyncMan::HandleID id;
 
 public:
-    UniqueAsyncManHandle(AsyncMan& man) : man(man) {
-        id = man.new_handle().id;
+    UniqueAsyncManHandle(AsyncMan& man, bool active = false, AsyncObject *object = nullptr) : man(man) {
+        auto& handle = man.new_handle();
+        id = handle.id;
+        handle.object = object;
+        handle.active = active;
     }
     ~UniqueAsyncManHandle() {
         man.delete_handle(id);
     }
     UniqueAsyncManHandle(const UniqueAsyncManHandle& o) : man(o.man) {
-        id = o.man.new_handle().id;
+        auto& handle = o.man.new_handle();
+        id = handle.id;
+        handle.active = o->active;
     }
     UniqueAsyncManHandle(UniqueAsyncManHandle&& o) : man(o.man), id(o.id) {
         o.id = 0;
@@ -94,9 +99,7 @@ class AsyncObject {
 public:
     UniqueAsyncManHandle handle;
 
-    AsyncObject(AsyncMan& man) : handle(man) {
-        handle->object = this;
-    }
+    AsyncObject(AsyncMan& man, bool active = true) : handle(man, active, this) {}
 
     AsyncObject(const AsyncObject& o) : handle(o.handle) {
         handle->object = this;
@@ -130,6 +133,31 @@ public:
     }
     AsyncMan::Handle& get_async_handle() {
         return *handle;
+    }
+};
+
+
+class AsyncSelector {
+    AsyncObject *current;
+
+public:
+    AsyncSelector(AsyncObject& object)
+          : current(&object) {
+        (*current)->active = true;
+    }
+    ~AsyncSelector() {
+        (*current)->active = false;
+    }
+
+    // This should be stacking and based on priorities to prevent conflicts
+    auto operator =(AsyncObject& object) {
+        (*current)->active = false;
+        current = &object;
+        (*current)->active = true;
+    }
+
+    operator AsyncObject &() const {
+        return *current;
     }
 };
 
