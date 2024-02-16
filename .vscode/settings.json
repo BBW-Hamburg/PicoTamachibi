@@ -6,8 +6,9 @@
         "reportMissingModuleSource": "none"
     },
     "micropico.syncFolder": "",
-    "micropico.openOnStart": true,
+    "micropico.openOnStart": false,
     "micropico.softResetAfterUpload": true,
+    "micropico.gcBeforeUpload": true,
     "python.analysis.typeshedPaths": [
         ".vscode\\Pico-W-Stub"
     ],
