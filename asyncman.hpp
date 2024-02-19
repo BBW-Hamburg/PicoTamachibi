@@ -176,6 +176,10 @@ public:
     operator AsyncObject &() const {
         return *current;
     }
+
+    bool operator ==(const auto& o) const {
+        return current == static_cast<const AsyncObject*>(&o);
+    }
 };
 
 #endif // ASYNCMAN_HPP

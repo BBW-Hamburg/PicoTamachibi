@@ -86,13 +86,16 @@ basiccoro::AwaitableTask<void> Context::poop() {
 
 /// Play food animation and increase health
 basiccoro::AwaitableTask<void> Context::eat_food() {
+    // Stop if already running
+    if (chibi == animations.eat)
+        co_return;
     // Back up previous animation
     AsyncObject& previous = chibi;
     // Play eating animatin
     chibi = animations.eat;
     co_await animations.eat.wait_done();
-    // Increase health
-    health *= 1.3f;
+    // Increase energy
+    energy *= 1.3f;
     // Restore previous animation
     chibi = previous;
 }
@@ -124,7 +127,7 @@ basiccoro::AwaitableTask<void> Context::energy_loop() {
         // Check if sleeping
         if (animations.babyzzz->is_active()) {
             // Increase energy, health and happiness if possible
-            health = etl::min(health + 0.011f, 1.0f);
+            health += 0.011f;
             happiness = etl::min((happiness + 0.15f)*(lamp?1.02f:1.03f), 1.15f) - 0.15f;
             energy += 0.025f/health;
             // Stop sleeping if full energy
@@ -138,7 +141,7 @@ basiccoro::AwaitableTask<void> Context::energy_loop() {
             if (energy < 0.2f)
                 happiness = etl::clamp(happiness*0.82f, 0.0f, 0.7f);
             if (energy < 0.1f)
-                health = etl::max(health*0.9f, 0.0f);
+                health *= 0.9f;
             // Fall asleep if too tired
             if ((lamp && energy <= 0.01f) || (!lamp && energy <= 0.18f)) {
                 energy = 0.0f;
@@ -212,6 +215,21 @@ void Context::run() {
 
         // Tick everything
         async_man.tick();
+
+        // Clamp values
+        health = etl::clamp(health, 0.0f, 1.0f);
+        energy = etl::clamp(energy, 0.0f, 1.0f);
+        happiness = etl::clamp(happiness, 0.0f, 1.0f);
+
+        // Render health bars
+        struct HealthBar {
+            unsigned y;
+            const float& value;
+        };
+        for (const auto& hb : std::initializer_list<HealthBar>{{Display::size.height-25, health}, {Display::size.height-20, energy}, {Display::size.height-15, happiness}}) {
+            fbuf.rect(5, 30, hb.y, hb.y+2);
+            fbuf.hline(5, 5+(hb.value*25.f), hb.y+1);
+        }
 
         // Render complete image
         oled.fullframe_framebuffer(fbuf);
