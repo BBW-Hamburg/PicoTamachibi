@@ -83,6 +83,20 @@ basiccoro::AwaitableTask<void> Context::poop() {
     // Restore previous animation
     chibi = previous;
 }
+
+/// Play food animation and increase health
+basiccoro::AwaitableTask<void> Context::eat_food() {
+    // Back up previous animation
+    AsyncObject& previous = chibi;
+    // Play eating animatin
+    chibi = animations.eat;
+    co_await animations.eat.wait_done();
+    // Increase health
+    health *= 1.3f;
+    // Restore previous animation
+    chibi = previous;
+}
+
 /// Poops every now and then
 basiccoro::AwaitableTask<void> Context::poop_loop() {
     Timer timer(async_man);
@@ -148,6 +162,7 @@ basiccoro::AwaitableTask<void> Context::hygiene_loop() {
     }
 }
 
+
 void Context::run() {
     etl::array<char, Display::size.buffer_size()> fbuf_data;
     if (!fbuf.load(fbuf_data))
@@ -189,6 +204,9 @@ void Context::run() {
                 // Toggle lightswitch
                 lamp = !lamp;
                 update_lamp();
+            } else if (tb == "food") {
+                // Eat something
+                eat_food();
             }
         }
 

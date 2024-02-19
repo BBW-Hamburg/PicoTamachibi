@@ -59,6 +59,7 @@ private:
 
     // Coroutines
     basiccoro::AwaitableTask<void> poop();
+    basiccoro::AwaitableTask<void> eat_food();
     basiccoro::AwaitableTask<void> poop_loop();
     basiccoro::AwaitableTask<void> energy_loop();
     basiccoro::AwaitableTask<void> hygiene_loop();
