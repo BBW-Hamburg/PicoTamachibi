@@ -41,7 +41,7 @@ def clear():
 #         oled.show()
 #         sleep(0.1)
 
-def  build_toolbar():
+def build_toolbar():
     toolbar = Toolbar()
     toolbar.spacer = 2
     toolbar.additem(food)    
