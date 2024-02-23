@@ -1000,7 +1000,7 @@
   (symbol (lib_id "components:Adafruit_Micro_SD_SPI_or_SDIO_Card_Breakout_Board") (at 161.29 60.96 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 0455848d-5271-4118-9016-4e6b219c25be)
-    (property "Reference" "SDCard" (at 184.15 43.18 0)
+    (property "Reference" "SDCard1" (at 184.15 43.18 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "~" (at 182.245 59.055 90)
@@ -1022,9 +1022,9 @@
     (pin "9" (uuid 3b693d3d-fac5-4061-bf86-6ceb5d7934de))
     (pin "1" (uuid 3304f832-b16f-4072-bb40-c2e95df0781a))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
-          (reference "SDCard") (unit 1)
+          (reference "SDCard1") (unit 1)
         )
       )
     )
@@ -1058,7 +1058,7 @@
     (pin "2" (uuid 7c55a8b2-139f-4ff1-a9a5-cce3ed8316db))
     (pin "3" (uuid f85d6213-42ed-4786-85e3-26e3e0ebd23e))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "Q2") (unit 1)
         )
@@ -1083,7 +1083,7 @@
     )
     (pin "1" (uuid 01e95d92-1eeb-4861-aec3-575926e0fe8b))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "#PWR010") (unit 1)
         )
@@ -1114,7 +1114,7 @@
     (pin "1" (uuid 34262e11-4a29-4b79-bf97-bdb0c24fdcd4))
     (pin "2" (uuid e0e8b157-5594-43eb-9959-a5cafaf2172c))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "R1") (unit 1)
         )
@@ -1139,7 +1139,7 @@
     )
     (pin "1" (uuid 0de2ee84-bf61-4594-aac2-9a86406cfac4))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "#PWR016") (unit 1)
         )
@@ -1150,7 +1150,7 @@
   (symbol (lib_id "SSD1306-128x64_OLED:SSD1306") (at 59.69 74.93 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 3ac853cf-e8ad-4fd1-9ac6-8fd8a26673e2)
-    (property "Reference" "Display" (at 48.26 78.74 90)
+    (property "Reference" "Display1" (at 48.26 78.74 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "SSD1306" (at 50.8 78.74 90)
@@ -1167,9 +1167,9 @@
     (pin "4" (uuid 35402f0f-a7db-4e49-96fa-4c971a2e820f))
     (pin "2" (uuid 21a84da4-7918-4635-8ea5-d647b7e17a13))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
-          (reference "Display") (unit 1)
+          (reference "Display1") (unit 1)
         )
       )
       (project "pcb_chibi"
@@ -1198,7 +1198,7 @@
     (pin "1" (uuid ecb115ae-60ca-4316-b3d5-0b546c4ce293))
     (pin "2" (uuid f260fe75-9dd5-4a0f-9c74-6e29a05d479d))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "R2") (unit 1)
         )
@@ -1223,7 +1223,7 @@
     )
     (pin "1" (uuid 08f2a7e4-d956-49c0-b5b2-2b4eaf364c62))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "#PWR07") (unit 1)
         )
@@ -1264,7 +1264,7 @@
     (pin "2" (uuid b7ee70b0-cc92-4b06-89a7-5feca793456e))
     (pin "3" (uuid 9e550834-96c6-4052-8245-981c420487d8))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "Q1") (unit 1)
         )
@@ -1296,7 +1296,7 @@
     (pin "4" (uuid 18ff7d93-85ae-449c-bd07-29bf1ea2beea))
     (pin "3" (uuid 2134d284-c849-4765-b8a7-12e5f4cda67f))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "J2") (unit 1)
         )
@@ -1321,7 +1321,7 @@
     )
     (pin "1" (uuid ea9a341f-ea6d-4e9b-92c0-c0c4c34b9c1a))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "#PWR015") (unit 1)
         )
@@ -1346,7 +1346,7 @@
     )
     (pin "1" (uuid a9244a21-9be3-48d8-bf08-51d17a1ad088))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "#PWR017") (unit 1)
         )
@@ -1371,7 +1371,7 @@
     )
     (pin "1" (uuid f4f8e8c2-4e63-44e8-b0b3-cf0e07059d79))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "#PWR03") (unit 1)
         )
@@ -1397,7 +1397,7 @@
     (pin "1" (uuid 25ad5d9f-0aab-45f4-aea1-482ad1ffba54))
     (pin "2" (uuid 681cba3a-fbd7-408d-9139-c9fcf155e743))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "BZ1") (unit 1)
         )
@@ -1408,7 +1408,7 @@
   (symbol (lib_id "MCU_RaspberryPi_and_Boards:Pico") (at 113.03 86.36 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 6fc7ea06-11ed-47d1-9a60-7271ed08c2fd)
-    (property "Reference" "Pico" (at 113.03 54.61 0)
+    (property "Reference" "Pico1" (at 113.03 54.61 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "Pico" (at 113.03 57.15 0)
@@ -1464,9 +1464,9 @@
     (pin "7" (uuid 04b50dee-c9bc-4d9e-afc5-db0e9152e0ee))
     (pin "17" (uuid a615dbbe-2296-44f0-b0a5-2d747faac8ce))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
-          (reference "Pico") (unit 1)
+          (reference "Pico1") (unit 1)
         )
       )
       (project "pcb_chibi"
@@ -1494,7 +1494,7 @@
     )
     (pin "1" (uuid 4c6b42a2-f887-492c-b391-6bfff6d29057))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "#PWR014") (unit 1)
         )
@@ -1519,7 +1519,7 @@
     )
     (pin "1" (uuid b8f354a9-a929-4dba-a9cb-9e9249badc97))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "#PWR012") (unit 1)
         )
@@ -1544,7 +1544,7 @@
     )
     (pin "1" (uuid 337bafde-28dd-4806-a484-18263cf0311c))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "#PWR06") (unit 1)
         )
@@ -1574,7 +1574,7 @@
     )
     (pin "1" (uuid 86bdee18-3b77-4923-a451-fefd5e0109ac))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "#PWR04") (unit 1)
         )
@@ -1604,7 +1604,7 @@
     )
     (pin "1" (uuid 5a853301-42fe-494e-b681-4c08e6a71ed3))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "#PWR01") (unit 1)
         )
@@ -1634,7 +1634,7 @@
     )
     (pin "1" (uuid 5e7a6503-eecf-4625-bae6-ee16d3cf4ba9))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "#PWR05") (unit 1)
         )
@@ -1664,7 +1664,7 @@
     )
     (pin "1" (uuid ae76c7c1-dfef-48b0-a3c0-871483c9263e))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "#PWR08") (unit 1)
         )
@@ -1695,7 +1695,7 @@
     (pin "1" (uuid fcd0ed1f-8348-4ad4-8d72-48b9b8334c7e))
     (pin "2" (uuid c1e2c862-5826-4ef3-ac44-05b374ea7865))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "D1") (unit 1)
         )
@@ -1720,7 +1720,7 @@
     )
     (pin "1" (uuid cf446d84-f696-4d4a-8b10-1096eea6b4b3))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "#PWR013") (unit 1)
         )
@@ -1745,7 +1745,7 @@
     )
     (pin "1" (uuid cd6ced9d-b73c-4feb-9e1b-a38bae16600a))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "#PWR011") (unit 1)
         )
@@ -1770,7 +1770,7 @@
     )
     (pin "1" (uuid 148535e9-0ea5-4152-8027-8dcdcca78f0e))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "#PWR09") (unit 1)
         )
@@ -1800,7 +1800,7 @@
     )
     (pin "1" (uuid f7a938f3-4243-46c7-bc06-ca138327f4c5))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "#PWR02") (unit 1)
         )
@@ -1826,7 +1826,7 @@
     (pin "1" (uuid 16bf3365-9fe6-4167-9d9a-dd50e0f94f1a))
     (pin "2" (uuid 12ca81cc-38d0-4eab-a2ca-a1273aa971e9))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "D2") (unit 1)
         )
@@ -1862,7 +1862,7 @@
     (pin "2" (uuid f904a771-f1c6-43f3-abfe-9e1da90c03ec))
     (pin "3" (uuid 9968fb42-6105-4e21-99c9-78510e2b71e5))
     (instances
-      (project "chibi_v2"
+      (project "chibi_v2_1"
         (path "/689cf35d-b2ef-4d92-8c34-285453c7ccd9"
           (reference "Q3") (unit 1)
         )

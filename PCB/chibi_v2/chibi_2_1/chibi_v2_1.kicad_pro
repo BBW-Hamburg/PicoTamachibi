@@ -100,7 +100,7 @@
         "tracks_crossing": "error",
         "unconnected_items": "error",
         "unresolved_variable": "error",
-        "via_dangling": "warning",
+        "via_dangling": "ignore",
         "zones_intersect": "error"
       },
       "rules": {
@@ -392,7 +392,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "chibi_v2.kicad_pro",
+    "filename": "chibi_v2_1.kicad_pro",
     "version": 1
   },
   "net_settings": {
