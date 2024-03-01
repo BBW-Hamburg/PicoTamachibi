@@ -85,7 +85,7 @@ class SaveGameManager:
                 file.write("0")
                 file.write(json.dumps(self.__SaveGameData))
         except:
-            print("Could not load save file!")
+            print("Could not save file!")
         
     def UpdateData(self, key, value):
         print("updating internal data")
