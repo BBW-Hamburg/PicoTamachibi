@@ -84,8 +84,9 @@ class SaveGameManager:
             with open("/sd/test01.txt", "wb") as file:
                 file.write("0")
                 file.write(json.dumps(self.__SaveGameData))
-        except:
-            print("Could not save file!")
+        except Exception as e:
+            print("Could not store savegame on SDCard:")
+            print(e)
         
     def UpdateData(self, key, value):
         print("updating internal data")
