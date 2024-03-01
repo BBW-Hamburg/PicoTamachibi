@@ -1,5 +1,5 @@
 Metadata-Version: 2.1
-Name: micropython-rp2-rpi_pico-stubs
+Name: micropython-rp2-rpi_pico_w-stubs
 Version: 1.22.1.post2
 Summary: MicroPython stubs
 Home-page: https://github.com/josverl/micropython-stubs#micropython-stubs
@@ -29,7 +29,7 @@ Project-URL: Documentation, https://micropython-stubs.readthedocs.io/
 Project-URL: Repository, https://github.com/josverl/micropython-stubs
 Description-Content-Type: text/markdown
 
-# micropython-rp2-rpi_pico-stubs
+# micropython-rp2-rpi_pico_w-stubs
 
 
 This is a stub-only package for MicroPython.
@@ -58,11 +58,13 @@ For an overview of  Micropython Stubs please see: https://micropython-stubs.read
  * List of all stubs : https://micropython-stubs.readthedocs.io/en/main/firmware_grp.html
 
 Included stubs:
-* Merged stubs from `stubs/micropython-v1_22_1-rp2-RPI_PICO-merged`
+* Merged stubs from `stubs/micropython-v1_22_1-rp2-RPI_PICO_W-merged`
+* Frozen stubs from `stubs/micropython-v1_22_1-frozen/rp2/RPI_PICO_W`
 * Core stubs from `stubs/micropython-core`
 
 
 origin | Family | Port | Board | Version
 -------|--------|------|-------|--------
 Documentation | micropython | - | - | v1.22.1 
+Core | micropython | rp2 | - | v1.22.1 
 

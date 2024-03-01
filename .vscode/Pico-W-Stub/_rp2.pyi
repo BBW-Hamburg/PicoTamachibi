@@ -13,14 +13,15 @@ for more information, and `pico-micropython-examples
 for example code.
 
 ---
-Module: '_rp2' on micropython-v1.22.1-rp2-RPI_PICO
+Module: '_rp2' on micropython-v1.22.1-rp2-RPI_PICO_W
 """
-# MCU: {'family': 'micropython', 'version': '1.22.1', 'build': '', 'ver': '1.22.1', 'port': 'rp2', 'board': 'RPI_PICO', 'cpu': 'RP2040', 'mpy': 'v6.2', 'arch': 'armv6m'}
+# MCU: {'family': 'micropython', 'version': '1.22.1', 'build': '', 'ver': '1.22.1', 'port': 'rp2', 'board': 'RPI_PICO_W', 'cpu': 'RP2040', 'mpy': 'v6.2', 'arch': 'armv6m'}
 # Stubber: v1.17.1
 from __future__ import annotations
 from _typeshed import Incomplete
 from typing import Any, Optional
 
+def country(*args, **kwargs) -> Incomplete: ...
 def bootsel_button() -> Incomplete:
     """
     Temporarily turns the QSPI_SS pin into an input and reads its value,
@@ -33,6 +34,22 @@ def bootsel_button() -> Incomplete:
     prevent them from trying to execute code from flash.
     """
     ...
+
+class Flash:
+    """
+    Gets the singleton object for accessing the SPI flash memory.
+    """
+
+    def readblocks(self, block_num, buf, offset: Optional[int] = 0) -> Incomplete: ...
+    def writeblocks(self, block_num, buf, offset: Optional[int] = 0) -> Incomplete: ...
+    def ioctl(self, cmd, arg) -> Incomplete:
+        """
+        These methods implement the simple and extended
+        :ref:`block protocol <block-device-interface>` defined by
+        :class:`os.AbstractBlockDev`.
+        """
+        ...
+    def __init__(self, *argv, **kwargs) -> None: ...
 
 class DMA:
     def irq(self, *args, **kwargs) -> Incomplete: ...
@@ -249,22 +266,6 @@ class PIO:
         The amount of memory available for programs on each PIO instance is
         limited. If there isn't enough space left in the PIO's program memory
         this method will raise ``OSError(ENOMEM)``.
-        """
-        ...
-    def __init__(self, *argv, **kwargs) -> None: ...
-
-class Flash:
-    """
-    Gets the singleton object for accessing the SPI flash memory.
-    """
-
-    def readblocks(self, block_num, buf, offset: Optional[int] = 0) -> Incomplete: ...
-    def writeblocks(self, block_num, buf, offset: Optional[int] = 0) -> Incomplete: ...
-    def ioctl(self, cmd, arg) -> Incomplete:
-        """
-        These methods implement the simple and extended
-        :ref:`block protocol <block-device-interface>` defined by
-        :class:`os.AbstractBlockDev`.
         """
         ...
     def __init__(self, *argv, **kwargs) -> None: ...
