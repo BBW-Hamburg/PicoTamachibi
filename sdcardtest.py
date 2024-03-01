@@ -1,7 +1,7 @@
 import machine
 import sdcard
 import uos
-import json
+import ujson
 
 mytestdata = {
                 "health":11,
@@ -71,10 +71,19 @@ class SaveGameManager:
         if not self.CheckFilesystemReady:
             return # If we have no filesystem we cannot write or read anyways...
         
-        with open("/sd/test00.txt", "rb") as file:
-            file.read(1)	#ignore first byte, it containes the version number as binary... later :)
-            data = file.read()
-            self.__SaveGameData = json.loads(data)
+        try:
+            with open("/sd/test00.txt", "rb") as file:
+                version_byte = file.read(1)  # Read the first byte as the version number in binary
+                data = file.read()  # Read the rest of the file
+
+                # Process the version byte if needed
+                # version_value = ord(version_byte)
+
+                # Parse the data as JSON
+                self.__SaveGameData = ujson.loads(data)
+        except Exception as e:
+            print("Could not read savegame from SDCard:")
+            print(e)
         
     def WriteSaveData(self):
         if not self.CheckFilesystemReady:
@@ -82,8 +91,12 @@ class SaveGameManager:
         # Create a file and write something to it
         try:
             with open("/sd/test01.txt", "wb") as file:
-                file.write("0")
-                file.write(json.dumps(self.__SaveGameData))
+                # Write a single byte as binary
+                file.write(b'\x00')
+
+                # Write the rest as a normal string
+                json_data = ujson.dumps(self.__SaveGameData)
+                file.write(json_data.encode('utf-8'))
         except Exception as e:
             print("Could not store savegame on SDCard:")
             print(e)
