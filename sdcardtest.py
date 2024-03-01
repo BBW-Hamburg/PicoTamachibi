@@ -53,8 +53,9 @@ class SaveGameManager:
             
             #load values from FS
             self.LoadSaveData()
-        except:
-            pass
+        except Exception as e:
+            print("Could not connect to SDCard:")
+            print(e)
 
         
             
