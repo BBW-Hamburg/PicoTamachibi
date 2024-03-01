@@ -35,7 +35,7 @@ class SaveGameManager:
 
             # Intialize SPI peripheral (start with 1 MHz)
             self.__spi = machine.SPI(1,
-                              baudrate=1000000,
+                              baudrate=1000,
                               polarity=0,
                               phase=0,
                               bits=8,
