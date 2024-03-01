@@ -1,8 +1,64 @@
 import machine
-import sdcard
-import uos
+import sys
 import ujson
+import time
 
+import uos
+import sdcard
+from machine import Pin, SPI
+
+class StorageManager:
+    def __init__(self, volume="sdcard"):
+        self._volume = volume
+
+        # Initialize SPI peripheral on Pico (Port 0, default pins)
+        self.spi = SPI(0, baudrate=100000, polarity=0, phase=0, sck=Pin(18), mosi=Pin(19), miso=Pin(16))
+
+        # Initialize SDCard on Pico
+        self.sd = sdcard.SDCard(self.spi, Pin(17))
+        uos.mount(self.sd, self.volume)
+
+    def write(self, filename, content):
+        full_path = self.volume + filename
+        print("Writing", full_path, content)
+        with open(full_path, "wxb") as file:
+            file.write(content)
+
+    def read(self, filename, length=None):
+        full_path = self.volume + filename
+        print("Reading", full_path, length)
+        try:
+            with open(full_path, "rb") as file:
+                if length is None:
+                    return file.read()
+                else:
+                    return file.read(length)
+        except Exception as e:
+            print("Error reading file " + full_path + ":", e)
+            return None
+
+    @property
+    def volume(self):
+        return "/" + self._volume + "/"
+
+    @volume.setter
+    def volume(self, value):
+        self._volume = value
+
+
+# Example usage:
+storage_manager = StorageManager()
+
+# Writing data to a file
+storage_manager.write("example.txt", b"Test inhalt")
+
+# Reading data from a file
+read_data = storage_manager.read("example.txt")
+print("Read data:", read_data)
+
+pass
+
+# Now you can list the contents of the root directory
 mytestdata = {
                 "health":11,
                 "happiness":1,
@@ -34,8 +90,8 @@ class SaveGameManager:
             self.__cs = machine.Pin(17, machine.Pin.OUT)
 
             # Intialize SPI peripheral (start with 1 MHz)
-            self.__spi = machine.SPI(1,
-                              baudrate=1000,
+            self.__spi = machine.SPI(0,
+                              baudrate=10000,
                               polarity=0,
                               phase=0,
                               bits=8,
