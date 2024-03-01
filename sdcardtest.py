@@ -31,7 +31,7 @@ class SaveGameManager:
         print("initializing")
         try:
             # Assign chip select (CS) pin (and start it high)
-            self.__cs = machine.Pin(9, machine.Pin.OUT)
+            self.__cs = machine.Pin(17, machine.Pin.OUT)
 
             # Intialize SPI peripheral (start with 1 MHz)
             self.__spi = machine.SPI(1,
@@ -40,9 +40,9 @@ class SaveGameManager:
                               phase=0,
                               bits=8,
                               firstbit=machine.SPI.MSB,
-                              sck=machine.Pin(10),
-                              mosi=machine.Pin(11),
-                              miso=machine.Pin(8))
+                              sck=machine.Pin(18),
+                              mosi=machine.Pin(19),
+                              miso=machine.Pin(16))
 
             # Initialize SD card
             self.__sd = sdcard.SDCard(self.__spi, self.__cs)
@@ -80,10 +80,13 @@ class SaveGameManager:
         if not self.CheckFilesystemReady:
             pass # If we have no filesystem we cannot write or read anyways...
         # Create a file and write something to it
-        with open("/sd/test01.txt", "wb") as file:
-            file.write("0")
-            file.write(json.dumps(self.__SaveGameData))
-            
+        try:
+            with open("/sd/test01.txt", "wb") as file:
+                file.write("0")
+                file.write(json.dumps(self.__SaveGameData))
+        except:
+            print("Could not load save file!")
+        
     def UpdateData(self, key, value):
         print("updating internal data")
         self.__SaveGameData[key]=value
